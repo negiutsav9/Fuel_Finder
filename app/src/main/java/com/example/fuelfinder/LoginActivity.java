@@ -3,6 +3,7 @@ package com.example.fuelfinder;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -59,6 +60,14 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 String email = binding.email.getText().toString().trim();
+                if(email == null || email.equals("")) { // check if email has been entered first
+                    Context context = getApplicationContext();
+                    CharSequence text = "Enter your email to reset password!";
+                    int duration = Toast.LENGTH_LONG;
+                    Toast toast = Toast.makeText(context, text, duration);
+                    toast.show();
+                    return;
+                }
                 firebaseAuth.sendPasswordResetEmail(email)
                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override

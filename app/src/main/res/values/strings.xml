@@ -7,7 +7,7 @@
     <string name="app_name">FuelFinder</string>
     <string name="app_title_first">FUEL</string>
     <string name="app_title_second">FINDER</string>
-    <string name="e_mail_address">E-Mail Address</string>
+    <string name="e_mail_address">Email Address</string>
     <string name="password">Password</string>
     <string name="sign_in">Sign In</string>
     <string name="sign_up">Sign Up</string>
