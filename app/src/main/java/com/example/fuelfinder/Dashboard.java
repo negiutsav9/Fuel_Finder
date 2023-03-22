@@ -19,6 +19,8 @@ public class Dashboard extends AppCompatActivity {
         //Removing Action Bar
         getSupportActionBar().hide();
 
+        getWindow().setNavigationBarColor(getColor(R.color.orange_red));
+
         // Initialize and assign variable
         NavigationBarView bottomNavigationView=findViewById(R.id.bottom_navigation);
 

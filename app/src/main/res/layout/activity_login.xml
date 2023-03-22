@@ -19,9 +19,10 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/search"
+        android:layout_marginStart="104dp"
         android:layout_marginTop="140dp"
         android:text="@string/app_title_second"
-        android:layout_marginStart="245dp"
         android:textColor="@color/orange_red"
         android:textSize="35sp"
         android:textStyle="italic" />
@@ -115,7 +116,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/sign_in"
         android:text="@string/sign_up"
-        android:layout_marginStart="100dp"
+        android:layout_marginStart="85dp"
         android:textSize="18sp"
         android:textColor="@color/orange_red"
         android:textStyle="bold"

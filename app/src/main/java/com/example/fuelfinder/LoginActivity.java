@@ -22,6 +22,7 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         getSupportActionBar().hide();
+        getWindow().setNavigationBarColor(getColor(R.color.orange_red));
         super.onCreate(savedInstanceState);
         binding = ActivityLoginBinding.inflate(getLayoutInflater());
         firebaseAuth = FirebaseAuth.getInstance();
