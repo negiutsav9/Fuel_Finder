@@ -3,9 +3,7 @@ package com.example.fuelfinder;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 
-import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -154,7 +152,8 @@ public class User extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                AlertDialog.Builder deleteDialog = new AlertDialog.Builder(User.this);
-               deleteDialog.setTitle("Delete Account?");
+               deleteDialog.setTitle("Delete Account");
+               deleteDialog.setMessage("Deleting an account will delete your logs permanently.");
                deleteDialog.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
                    @Override
                    public void onClick(DialogInterface dialogInterface, int i) {
@@ -176,7 +175,10 @@ public class User extends AppCompatActivity {
                        dialogInterface.dismiss();
                    }
                });
-               deleteDialog.show();
+               AlertDialog alert = deleteDialog.create();
+               alert.show();
+               alert.getButton(DialogInterface.BUTTON_NEGATIVE).setTextColor(getColor(R.color.teal_200));
+               alert.getButton(DialogInterface.BUTTON_POSITIVE).setTextColor(getColor(R.color.orange_red));
             }
         });
 
