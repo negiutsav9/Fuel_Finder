@@ -57,6 +57,7 @@ public class SignUpActivity extends AppCompatActivity {
                                     firebaseFirestore.collection("User")
                                             .document(FirebaseAuth.getInstance().getUid())
                                             .set(new UserModel(name, email));
+
                                 }
                             })
                             .addOnFailureListener(new OnFailureListener() {
