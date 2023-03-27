@@ -16,7 +16,29 @@
         android:text="@string/dashboard_head"
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
-        android:layout_marginLeft="15dp"
+        android:layout_marginStart="15dp"
+        android:textColor="@color/orange_red"
+        android:textSize="35sp"
+        android:textStyle="italic" />
+
+    <TextView
+        android:id="@+id/nameLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="140dp"
+        android:text="@string/hiLabelText"
+        android:textColor="@color/orange_red"
+        android:textSize="35sp"
+        android:textStyle="italic" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="20dp"
+        android:layout_below="@id/nameLabel"
+        android:text="@string/monthly_summary_text"
         android:textColor="@color/orange_red"
         android:textSize="35sp"
         android:textStyle="italic" />
@@ -35,5 +57,21 @@
         app:itemIconTint="@drawable/bottom_navbar_tabs"
         app:itemTextColor="@drawable/bottom_navbar_tabs"
         app:menu="@menu/menu_navigation" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="24dp"
+        android:layout_marginBottom="110dp"
+        android:contentDescription="Create Log"
+        android:src="@drawable/baseline_edit_note_24"
+        app:tint="@color/white"
+        app:backgroundTint="@color/orange_red"/>
 
 </RelativeLayout>

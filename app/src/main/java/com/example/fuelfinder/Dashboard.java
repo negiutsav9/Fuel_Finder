@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationBarView;
 
 public class Dashboard extends AppCompatActivity {
@@ -46,6 +47,11 @@ public class Dashboard extends AppCompatActivity {
                 }
                 return false;
             }
+        });
+
+        FloatingActionButton fab = findViewById(R.id.fab);
+        fab.setOnClickListener(view -> { // change activities to make a log screen
+            startActivity(new Intent(getApplicationContext(),AddLogActivity.class));
         });
     }
 }

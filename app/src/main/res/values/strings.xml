@@ -18,4 +18,10 @@
     <string name="sign_out">Sign Out</string>
     <string name="done">Done</string>
     <string name="delete">Delete</string>
+    <string name="typeButtonText">Type</string>
+    <string name="scanButtonText">Scan</string>
+    <string name="addNewLogLabelText">Add a new log</string>
+    <string name="backButtonScreenReaderText">BackText</string>
+    <string name="hiLabelText">Hi,</string>
+    <string name="monthly_summary_text">Monthly Summary</string>
 </resources>

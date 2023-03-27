@@ -74,7 +74,7 @@ public class SignUpActivity extends AppCompatActivity {
 
         binding.signIn.setOnClickListener(new View.OnClickListener(){
             public void onClick(View view) {
-                startActivity(new Intent(SignUpActivity.this, MapActivity.class));
+                startActivity(new Intent(SignUpActivity.this, LoginActivity.class));
             }
         });
     }
