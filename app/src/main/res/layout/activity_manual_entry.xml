@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ManualEntryActivity">
+
+
+    <TableLayout
+        android:id="@+id/dateTimeForm"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="20dp"
+        android:stretchColumns="0,1"
+        android:layout_marginHorizontal="20dp"
+        >
+
+        <TableRow
+            android:paddingVertical="3dp"
+            >
+            <TextView
+                android:text="@string/date"
+                android:textSize="25sp"
+                android:textStyle="bold"
+                />
+            <Button
+                android:id="@+id/datePickerButton"
+                android:text='@string/jan_01_2023'
+                android:textSize="25sp"
+                style="?android:spinnerStyle"
+                android:textAlignment="center"
+                />
+        </TableRow>
+
+        <TableRow
+            android:paddingVertical="3dp"
+            >
+            <TextView
+                android:text="@string/time"
+                android:textSize="25sp"
+                android:textStyle="bold"
+                />
+            <Button
+                android:id="@+id/timePickerButton"
+                android:text='@string/_12_00_am'
+                android:textSize="25sp"
+                style="?android:spinnerStyle"
+                android:textAlignment="center"
+                />
+        </TableRow>
+    </TableLayout>
+
+    <TextView
+        android:id="@+id/fuelStationHeader"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/fuel_station"
+        android:textSize="25sp"
+        android:textStyle="bold"
+        android:layout_below="@id/dateTimeForm"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginBottom="10dp"
+        />
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/fuelStation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/fuelStationHeader"
+        android:layout_marginHorizontal="20dp"
+        >
+
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/autocomplete_fragment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"
+            tools:layout="@layout/support_simple_spinner_dropdown_item" />
+    </androidx.cardview.widget.CardView>
+
+    <TableLayout
+        android:id="@+id/fuelForm"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/fuelStation"
+        android:layout_marginVertical="10dp"
+        android:stretchColumns="*"
+        android:layout_marginHorizontal="20dp"
+        >
+        <TableRow
+            android:paddingVertical="3dp"
+            >
+            <TextView
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:text="@string/total_cost"
+                android:textSize="25sp"
+                android:textStyle="bold"
+                />
+            <EditText
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:id="@+id/cost"
+                android:textSize="25sp"
+                android:inputType="numberDecimal"
+                android:backgroundTint="@color/orange_red"
+                android:textAlignment="center"
+                android:textColor="@color/orange_red"
+                android:importantForAutofill="no"
+                tools:ignore="LabelFor" />
+        </TableRow>
+
+        <TableRow
+            android:paddingVertical="3dp"
+            >
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:text="@string/refill_capacity"
+                android:textSize="25sp"
+                android:textStyle="bold" />
+            <EditText
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:id="@+id/refill"
+                android:textSize="25sp"
+                android:inputType="numberDecimal"
+                android:backgroundTint="@color/orange_red"
+                android:textAlignment="center"
+                android:textColor="@color/orange_red"
+                android:importantForAutofill="no"
+                tools:ignore="LabelFor" />
+        </TableRow>
+
+        <TableRow
+            android:paddingVertical="3dp"
+            >
+            <TextView
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:text="@string/fuel_type"
+                android:textSize="25sp"
+                android:textStyle="bold"
+                />
+            <EditText
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:id="@+id/type"
+                android:textSize="25sp"
+                android:backgroundTint="@color/orange_red"
+                android:textAlignment="center"
+                android:textColor="@color/orange_red"
+                android:importantForAutofill="no"
+                tools:ignore="LabelFor"
+                android:inputType="text" />
+        </TableRow>
+
+        <TableRow
+            android:paddingVertical="3dp"
+            >
+            <TextView
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:text="@string/odometer"
+                android:textSize="25sp"
+                android:textStyle="bold"
+                />
+            <EditText
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:id="@+id/odometer"
+                android:textSize="25sp"
+                android:inputType="numberDecimal"
+                android:backgroundTint="@color/orange_red"
+                android:textAlignment="center"
+                android:textColor="@color/orange_red"
+                android:importantForAutofill="no"
+                tools:ignore="LabelFor" />
+        </TableRow>
+
+        <TableRow
+            android:paddingVertical="3dp"
+            >
+            <TextView
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:text="@string/fuel_economy"
+                android:textSize="25sp"
+                android:textStyle="bold"
+                />
+            <EditText
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:id="@+id/fuel_eco"
+                android:textSize="25sp"
+                android:inputType="numberDecimal"
+                android:backgroundTint="@color/orange_red"
+                android:textAlignment="center"
+                android:textColor="@color/orange_red"
+                android:importantForAutofill="no"
+                tools:ignore="LabelFor" />
+        </TableRow>
+    </TableLayout>
+
+
+    <Button
+        android:id="@+id/review_button"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:layout_below="@+id/fuelForm"
+        android:layout_marginHorizontal="100dp"
+        android:layout_marginVertical="40dp"
+        android:backgroundTint="@color/orange_red"
+        android:layout_alignParentBottom="true"
+        android:text="@string/review"
+        android:textColor="@color/white" />
+
+</RelativeLayout>

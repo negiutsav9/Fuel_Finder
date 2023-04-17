@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ReviewActivity">
+
+
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="20dp"
+        android:layout_marginHorizontal="15dp"
+        android:stretchColumns="0,1"
+        >
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingVertical="10dp">
+
+            <TextView
+                android:id="@+id/date_header"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/date"
+                android:textColor="@color/orange_red"
+                android:textSize="20sp" />
+
+            <TextView
+                android:id="@+id/date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="March 29, 2023"
+                android:textSize="20sp" />
+
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingVertical="10dp">
+
+            <TextView
+                android:id="@+id/time_header"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Time"
+                android:textColor="@color/orange_red"
+                android:textSize="20sp"
+                />
+
+            <TextView
+                android:id="@+id/time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="12:00 PM"
+                android:textSize="20sp"
+                />
+
+        </TableRow>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/orange_red"
+            android:layout_margin="5dp"/>
+
+        <TableLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingVertical="1dp"
+            android:stretchColumns="1,2">
+
+            <TableRow
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingVertical="10dp"
+                android:layout_gravity="center">
+
+                <TextView
+                    android:id="@+id/cost_header"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Total Cost"
+                    android:textAlignment="center"
+                    android:layout_column="1"
+                    android:textColor="@color/orange_red"
+                    android:textSize="20sp" />
+
+                <TextView
+                    android:id="@+id/fuel_header"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAlignment="center"
+                    android:text="Refill Capacity"
+                    android:textColor="@color/orange_red"
+                    android:textSize="20sp"
+                    android:layout_column="2"/>
+
+            </TableRow>
+
+            <TableRow
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingVertical="10dp"
+                android:layout_gravity="center">
+
+                <TextView
+                    android:id="@+id/cost"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAlignment="center"
+                    android:text="25 $"
+                    android:textSize="20sp"
+                    android:layout_column="1"
+                    />
+
+                <TextView
+                    android:id="@+id/fuel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_column="2"
+                    android:text="12 Gallons"
+                    android:textAlignment="center"
+                    android:textSize="20sp" />
+
+            </TableRow>
+
+        </TableLayout>
+
+        <TableLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingVertical="1dp"
+            android:stretchColumns="1,2">
+
+            <TableRow
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingVertical="10dp"
+                android:layout_gravity="center">
+
+                <TextView
+                    android:id="@+id/rate_header"
+                    android:layout_width="14dp"
+                    android:layout_height="wrap_content"
+                    android:layout_column="1"
+                    android:text="Fuel Rate"
+                    android:textAlignment="center"
+                    android:textColor="@color/orange_red"
+                    android:textSize="20sp" />
+
+                <TextView
+                    android:id="@+id/type_header"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAlignment="center"
+                    android:text="Fuel Type"
+                    android:textColor="@color/orange_red"
+                    android:textSize="20sp"
+                    android:layout_column="2"/>
+
+            </TableRow>
+
+            <TableRow
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingVertical="10dp"
+                android:layout_gravity="center">
+
+                <TextView
+                    android:id="@+id/rate"
+                    android:layout_width="59dp"
+                    android:layout_height="wrap_content"
+                    android:layout_column="1"
+                    android:text="2 $/G"
+                    android:textAlignment="center"
+                    android:textSize="20sp" />
+
+                <TextView
+                    android:id="@+id/type"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAlignment="center"
+                    android:text="Unleaded"
+                    android:textSize="20sp"
+                    android:layout_column="2"/>
+
+            </TableRow>
+
+        </TableLayout>
+
+        <TableLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingVertical="1dp"
+            android:stretchColumns="1,2">
+
+            <TableRow
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingVertical="10dp"
+                android:layout_gravity="center">
+
+                <TextView
+                    android:id="@+id/odometer_header"
+                    android:layout_width="97dp"
+                    android:layout_height="wrap_content"
+                    android:layout_column="1"
+                    android:text="Odometer"
+                    android:textAlignment="center"
+                    android:textColor="@color/orange_red"
+                    android:textSize="20sp" />
+
+                <TextView
+                    android:id="@+id/fuel_eco_header"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAlignment="center"
+                    android:text="Fuel Economy"
+                    android:textColor="@color/orange_red"
+                    android:textSize="20sp"
+                    android:layout_column="2"/>
+
+            </TableRow>
+
+
+            <TableRow
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingVertical="10dp"
+                android:layout_gravity="center">
+
+                <TextView
+                    android:id="@+id/odometer"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAlignment="center"
+                    android:text="200 mi"
+                    android:textSize="20sp"
+                    android:layout_column="1"
+                    />
+
+                <TextView
+                    android:id="@+id/fuel_eco"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAlignment="center"
+                    android:text="17 mpg"
+                    android:textSize="20sp"
+                    android:layout_column="2"/>
+
+            </TableRow>
+
+        </TableLayout>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/fuelStation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/fuelStationHeader"
+            android:layout_marginHorizontal="20dp"
+            >
+            <fragment
+                xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:id="@+id/map"
+                android:name="com.google.android.gms.maps.SupportMapFragment"
+                android:layout_width="match_parent"
+                android:layout_height="150dp"
+                tools:context="com.example.mapwithmarker.MapsMarkerActivity"
+                tools:layout="@android:layout/simple_spinner_item" />
+
+        </androidx.cardview.widget.CardView>
+
+
+        <TableLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingVertical="1dp"
+            android:stretchColumns="0,1"
+            android:layout_marginVertical="1dp"
+            >
+
+
+            <TableRow
+                android:layout_width="wrap_content"
+                android:layout_height="260dp"
+                android:layout_gravity="center"
+                android:paddingVertical="10dp">
+
+                <Button
+                    android:id="@+id/edit_button"
+                    android:layout_width="100dp"
+                    android:layout_height="60dp"
+                    android:layout_margin="5dp"
+                    android:backgroundTint="@color/orange_red"
+                    android:text="Edit"
+                    android:textColor="@color/white" />
+
+                <Button
+                    android:id="@+id/save_button"
+                    android:layout_width="100dp"
+                    android:layout_height="60dp"
+                    android:layout_margin="5dp"
+                    android:backgroundTint="@color/orange_red"
+                    android:text="Save"
+                    android:textColor="@color/white" />
+
+            </TableRow>
+
+        </TableLayout>
+
+
+    </TableLayout>
+
+</RelativeLayout>

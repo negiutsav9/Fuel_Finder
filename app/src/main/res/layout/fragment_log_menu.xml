@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="210dp"
+    android:animateLayoutChanges="true"
+    >
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/LogItem"
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="10dp"
+        app:cardCornerRadius="40dp"
+        android:animateLayoutChanges="true"
+        app:cardElevation="10dp">
+
+        <RelativeLayout
+            android:id="@+id/layout"
+            android:layout_width="220dp"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="10dp"
+            android:layout_marginVertical="5dp"
+            android:orientation="vertical"
+            android:padding="4dp">
+
+            <TextView
+                android:id="@+id/Date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="4dp"
+                android:text="January 01, 2023"
+                android:textColor="@color/orange_red"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/Time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="170dp"
+                android:layout_marginVertical="4dp"
+                android:layout_marginStart="25dp"
+                android:layout_toEndOf="@+id/Date"
+                android:text="12:00 AM"
+                android:textColor="@color/orange_red"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <TableLayout
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/Date"
+                android:layout_marginTop="10dp"
+                android:layout_alignParentBottom="true"
+                android:stretchColumns="0,1">
+
+                <TableRow>
+
+                    <TextView
+                        android:id="@+id/total_cost_header"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:text="@string/total_cost" />
+
+                    <TextView
+                        android:id="@+id/total_cost"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:text="$ 100" />
+                </TableRow>
+
+                <TableRow>
+
+                    <TextView
+                        android:id="@+id/refill_header"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:text="@string/refill_capacity" />
+
+                    <TextView
+                        android:id="@+id/refill"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:text="100" />
+                </TableRow>
+
+                <TableRow>
+
+                    <TextView
+                        android:id="@+id/fuel_type_header"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:text="@string/fuel_type" />
+
+                    <TextView
+                        android:id="@+id/fuel_type"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:text="Unleaded" />
+                </TableRow>
+
+                <TableRow>
+
+                    <TextView
+                        android:id="@+id/odometer_header"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:text="@string/odometer" />
+
+                    <TextView
+                        android:id="@+id/odometer"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:text="100" />
+                </TableRow>
+
+                <TableRow>
+
+                    <TextView
+                        android:id="@+id/fuel_eco_header"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:text="@string/fuel_economy" />
+
+                    <TextView
+                        android:id="@+id/fuel_eco"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:text="100" />
+                </TableRow>
+
+                <TableRow>
+
+                    <TextView
+                        android:id="@+id/fuelStationHeader"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/fuel_station" />
+
+                    <TextView
+                        android:id="@+id/fuelStation"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:text="Kwik Trip" />
+                </TableRow>
+            </TableLayout>
+        </RelativeLayout>
+
+            <TableLayout
+                android:layout_width="156dp"
+                android:layout_height="match_parent"
+                android:paddingVertical="13dp"
+                android:layout_marginStart="200dp"
+                android:layout_toEndOf="@id/layout"
+                android:stretchColumns="0,1">
+
+                <TableRow
+                    android:id="@+id/viewMap"
+                    android:layout_marginVertical="5dp"
+                    android:paddingVertical="3dp">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/baseline_map_24"
+                        app:tint="@color/orange_red" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="View Map"
+                        android:textColor="@color/orange_red"
+                        android:textSize="20sp" />
+                </TableRow>
+
+                <TableRow
+                    android:id="@+id/edit"
+                    android:layout_marginVertical="3dp"
+                    android:paddingVertical="3dp">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/baseline_edit_note_24"
+                        app:tint="@color/orange_red" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="Edit"
+                        android:textColor="@color/orange_red"
+                        android:textSize="20dp" />
+                </TableRow>
+
+                <TableRow
+                    android:id="@+id/share"
+                    android:layout_marginVertical="3dp"
+                    android:paddingVertical="3dp">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/baseline_share_24"
+                        app:tint="@color/orange_red" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="Share"
+                        android:textColor="@color/orange_red"
+                        android:textSize="20dp" />
+                </TableRow>
+
+                <TableRow
+                    android:id="@+id/delete"
+                    android:layout_marginVertical="3dp"
+                    android:paddingVertical="3dp">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/baseline_delete_24"
+                        app:tint="@color/orange_red" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="Delete"
+                        android:textColor="@color/orange_red"
+                        android:textSize="20dp" />
+                </TableRow>
+            </TableLayout>
+
+    </androidx.cardview.widget.CardView>
+
+
+</RelativeLayout>
