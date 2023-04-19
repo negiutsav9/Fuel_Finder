@@ -25,7 +25,11 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Year;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -71,8 +75,23 @@ public class LogSummaryFragment extends Fragment {
                     public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                         List<DocumentSnapshot> logData = queryDocumentSnapshots.getDocuments();
                         List<LogModel> logDataFinal = new ArrayList<>();
+
+                        long currUnixTime = System.currentTimeMillis() / 1000;
+                        // determine whether this year is a leap year
+                        Instant instant = Instant.ofEpochSecond(currUnixTime);
+                        LocalDateTime dateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
+                        int year = dateTime.getYear();
+                        boolean isLeap = Year.of(year).isLeap();
+                        final long SECONDS_IN_LEAP_YEAR = 31622400;
+                        final long SECONDS_IN_NON_LEAP_YEAR = 31536000;
+                        long secondsInYear = isLeap ? SECONDS_IN_LEAP_YEAR : SECONDS_IN_NON_LEAP_YEAR;
+
                         for (DocumentSnapshot d : logData) {
-                            logDataFinal.add(d.toObject(LogModel.class));
+                            LogModel log = d.toObject(LogModel.class);
+                            long logUnixTime = log.stringToDate().getTime(); // unix time when log was created (ignoring time of day)
+                            // only want to display data in the last year
+                            if(currUnixTime - logUnixTime < secondsInYear)
+                                logDataFinal.add(log);
                         }
                         Collections.sort(logDataFinal);
                         graphView = returnValue.findViewById(R.id.graph);
@@ -91,9 +110,10 @@ public class LogSummaryFragment extends Fragment {
                         LineGraphSeries<DataPoint> series = new LineGraphSeries<DataPoint>(dataPoints);
                         graphView.addSeries(series);
                         series.setColor(Color.parseColor("#F44336"));
-//                        graphView.getViewport().setXAxisBoundsManual(true);
-//                        graphView.getViewport().setMinX(0);
-//                        graphView.getViewport().setMaxX(1);
+                        // set bounds to be first date in year to last
+                        //graphView.getViewport().setXAxisBoundsManual(true);
+                        //graphView.getViewport().setMinX(logDataFinal.get(0).stringToDate().getTime());
+                        //graphView.getViewport().setMaxX(logDataFinal.get(logDataFinal.size() - 1).stringToDate().getTime());
 
                     }
                 }).addOnFailureListener(new OnFailureListener() {
