@@ -25,7 +25,12 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import android.util.Log;
 import com.jjoe64.graphview.GraphView;
@@ -34,12 +39,11 @@ import com.jjoe64.graphview.series.LineGraphSeries;
 
 
 public class LogSummaryFragment extends Fragment {
-    GraphView graphView;
+    private GraphView graphView;
 
     private FirebaseFirestore firebaseFirestore;
     private FirebaseAuth firebaseAuth;
-    TextView test;
-    String test2 = "Foo bar";
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,26 +64,51 @@ public class LogSummaryFragment extends Fragment {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         // Apply the adapter to the spinner
         spinner.setAdapter(adapter);
-        graphView = returnValue.findViewById(R.id.graph);
-        LineGraphSeries<DataPoint> series = new LineGraphSeries<DataPoint>(new DataPoint[] {
-                new DataPoint(0,1),
-                new DataPoint(1,3),
-                new DataPoint(2,4),
-                new DataPoint(3,9),
-                new DataPoint(4,6),
-                new DataPoint(5,3),
-                new DataPoint(6,6),
-                new DataPoint(7,1),
-                new DataPoint(8,2)
-        });
-        graphView.addSeries(series);
-        series.setColor(Color.parseColor("#F44336"));
+
+        firebaseFirestore.collection("User").document(firebaseAuth.getUid()).collection("Logs").orderBy("timestamp", Query.Direction.DESCENDING)
+                .get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                        List<DocumentSnapshot> logData = queryDocumentSnapshots.getDocuments();
+                        List<LogModel> logDataFinal = new ArrayList<>();
+                        for (DocumentSnapshot d : logData) {
+                            logDataFinal.add(d.toObject(LogModel.class));
+                        }
+                        Collections.sort(logDataFinal);
+                        graphView = returnValue.findViewById(R.id.graph);
+                        DataPoint[] dataPoints = new DataPoint[logDataFinal.size()];
+                        Date[] dateArray = new Date[logDataFinal.size()];
+                        for (int i = 0; i < logDataFinal.size(); i++) {
+                            double curCost = logDataFinal.get(i).getTotal_cost();
+                            String dateString = logDataFinal.get(i).getDate();
+                            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM d, yyyy");
+                            LocalDate localDate = LocalDate.parse(dateString, formatter);
+                            Date curDate = Date.from(localDate.atStartOfDay().atZone(java.time.ZoneId.systemDefault()).toInstant());
+                            dateArray[i] = curDate;
+                            DataPoint dataPoint = new DataPoint(curDate, curCost);
+                            dataPoints[i] = dataPoint;
+                        }
+                        LineGraphSeries<DataPoint> series = new LineGraphSeries<DataPoint>(dataPoints);
+                        graphView.addSeries(series);
+                        series.setColor(Color.parseColor("#F44336"));
+//                        graphView.getViewport().setXAxisBoundsManual(true);
+//                        graphView.getViewport().setMinX(0);
+//                        graphView.getViewport().setMaxX(1);
+
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        e.printStackTrace();
+                    }
+                });
+
+
 
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 String selectedItem = adapterView.getItemAtPosition(i).toString();
-                graphView.setTitle(selectedItem);
             }
 
             @Override
@@ -87,28 +116,6 @@ public class LogSummaryFragment extends Fragment {
 
             }
         });
-
-        firebaseFirestore.collection("User").document(firebaseAuth.getUid()).collection("Logs").orderBy("timestamp", Query.Direction.DESCENDING)
-                .get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                    @Override
-                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        List<DocumentSnapshot> logData = queryDocumentSnapshots.getDocuments();
-                        if (!queryDocumentSnapshots.isEmpty()) {
-                            for (DocumentSnapshot document : logData) {
-                                // after getting this list we are passing
-                                // that list to our object class.
-                                LogModel log = document.toObject(LogModel.class);
-
-                            }
-                        }
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        e.printStackTrace();
-                    }
-                });
 
         return returnValue;
     }
