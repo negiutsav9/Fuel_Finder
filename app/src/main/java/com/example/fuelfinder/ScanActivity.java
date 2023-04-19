@@ -15,6 +15,7 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
@@ -25,19 +26,18 @@ import com.google.firebase.ml.vision.common.FirebaseVisionImage;
 import com.google.firebase.ml.vision.text.FirebaseVisionText;
 import com.google.firebase.ml.vision.text.FirebaseVisionTextRecognizer;
 
-import java.lang.reflect.Array;
-
 // reference for ML: https://www.youtube.com/watch?v=-7pM5ficYoc
 
 public class ScanActivity extends AppCompatActivity {
 
     ImageView pumpIV;
-    String pumpStr = "-1";
+    TextView pumpTV;
 
     ImageView odoIV;
-    String odoStr = "-1";
+    TextView odoTV;
+
     ImageView mpgIV;
-    String mpgStr = "-1";
+    TextView mpgTV;
 
     enum ImageType {
         PUMP,
@@ -65,16 +65,17 @@ public class ScanActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_scan);
 
-        int imageResource = getResources().getIdentifier("@drawable/camera_icon", null, this.getPackageName());
-
         pumpIV = findViewById(R.id.pumpIV);
-        pumpIV.setImageResource(imageResource);
+        pumpTV = findViewById(R.id.pumpTV);
+        pumpTV.setText("pump text");
 
         odoIV = findViewById(R.id.odoIV);
-        odoIV.setImageResource(imageResource);
+        odoTV = findViewById(R.id.odoTV);
+        odoTV.setText("odo text");
 
         mpgIV = findViewById(R.id.mpgIV);
-        mpgIV.setImageResource(imageResource);
+        mpgTV = findViewById(R.id.mpgTV);
+        mpgTV.setText("mpg text");
 
         //check app level permission is granted for Camera
         if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED){
@@ -112,12 +113,12 @@ public class ScanActivity extends AppCompatActivity {
         Bitmap bitmap = (Bitmap) bundle.get("data");
 
         //set image in imageview
-        if(imgType == ImageType.PUMP)
-            pumpIV.setImageBitmap(bitmap);
-        else if(imgType == ImageType.ODO)
-            odoIV.setImageBitmap(bitmap);
-        else if(imgType == ImageType.MPG) mpgIV.setImageBitmap(bitmap);
-        else throw new RuntimeException("unrecognized image type");
+         if(imgType == ImageType.PUMP)
+             pumpIV.setImageBitmap(bitmap);
+         else if(imgType == ImageType.ODO)
+             odoIV.setImageBitmap(bitmap);
+         else if(imgType == ImageType.MPG) mpgIV.setImageBitmap(bitmap);
+         else throw new RuntimeException("unrecognized image type");
 
         //process the image
         //1. create a FirebaseVisionImage object from a Bitmap object
@@ -134,19 +135,12 @@ public class ScanActivity extends AppCompatActivity {
             public void onSuccess(FirebaseVisionText firebaseVisionText) {
                 String s = firebaseVisionText.getText();
 
-                if(imgType == ImageType.PUMP) {
-                    s = processMLText(s);
-                    pumpStr = s;
-                }
-
-                else if(imgType == ImageType.ODO) {
-                    s = processMLText(s);
-                    odoStr = s;
-                }
-                else if(imgType == ImageType.MPG) {
-                    s = processMLText(s);
-                    mpgStr = s;
-                }
+                if(imgType == ImageType.PUMP)
+                    pumpTV.setText(s);
+                else if(imgType == ImageType.ODO)
+                    odoTV.setText(s);
+                else if(imgType == ImageType.MPG)
+                    mpgTV.setText(s);
                 else throw new RuntimeException("unrecognized text type");
                 imgType = ImageType.UNINIT;
             }
@@ -162,125 +156,5 @@ public class ScanActivity extends AppCompatActivity {
 
     public void continueButtonPress(View v) {
         Toast.makeText(getApplicationContext(), "Continue to Manual Entry...", Toast.LENGTH_SHORT);
-
-        double total_cost = -1;
-        try {
-            total_cost = Double.valueOf(pumpStr.split("\n")[0]);
-        }
-        catch(NumberFormatException nfe) {}
-        double fuel_refill = -1;
-        try {
-            total_cost = Double.valueOf(pumpStr.split("\n")[1]);
-        }
-        catch(NumberFormatException nfe) {}
-        catch(ArrayIndexOutOfBoundsException ibe) {}
-        int odometer = -1;
-        try {
-            odometer = Integer.valueOf(odoStr);
-        }
-        catch(NumberFormatException nfe) {}
-        double fuel_eco = -1;
-        try {
-            fuel_eco = Double.valueOf(mpgStr);
-        }
-        catch(NumberFormatException nfe) {}
-
-        Intent manualIntent = new Intent(getApplicationContext(), ManualEntryActivity.class);
-        manualIntent.putExtra("CostScan", total_cost);
-        manualIntent.putExtra("CapacityScan", fuel_refill);
-        manualIntent.putExtra("OdometerScan", odometer);
-        manualIntent.putExtra("EconomyScan", fuel_eco);
-        startActivity(manualIntent);
-    }
-
-    private String processMLText(String text) {
-        String procStr = text.replace('l', '1').trim();
-        procStr = text.replace('I', '1');
-        procStr = text.replace('l', '1');
-        procStr = text.replace('o', '0');
-        procStr = text.replace('O', '0');
-        procStr = removeLinesWithNoNumbers(procStr);
-        procStr = procStr.replaceAll("[^0-9\n]", "");
-        procStr = procStr.replace(".", ""); // decimal points will be manually added
-        if(imgType == ImageType.PUMP) { // expecting cost (###.##), gallons (##.###)
-            /*
-            if(procStr.split("\n").length != 2) {
-                return "too many lines: #" + procStr.split("\n").length + ", " + procStr;
-                //FIXME: change to return "Failed to read pump"?
-            }
-             */
-            String costStr = procStr.substring(0, procStr.indexOf('\n'));
-            costStr = costStr.replace("\n", "");
-            costStr = costStr.substring(0, costStr.length() - 2) +
-                    '.' + costStr.substring(costStr.length() - 3 + 1);
-            try {
-                double cost = Double.valueOf(costStr);
-            }
-            catch(NumberFormatException nfe) {
-                //costStr = "Non-numeric cost: " + costStr;
-                //FIXME: change to return "Failed to read odometer"?
-            }
-
-            String galStr = procStr.substring(procStr.indexOf('\n') + 1);
-            galStr = galStr.replace("\n", "");
-            galStr = galStr.substring(0, galStr.length() - 3) +
-                    "." + galStr.substring(galStr.length() - 4 + 1);
-            try {
-                double gals = Double.valueOf(galStr);
-            }
-            catch(NumberFormatException nfe) {
-                //costStr = "Non-numeric gals: " + galStr;
-                //FIXME: change to return "Failed to read odometer"?
-            }
-            return costStr + "\n" + galStr;
-        }
-
-        else if(imgType == ImageType.ODO) { // expecting odometer to be (#####)
-            if(procStr.split("\n").length != 1) {
-                //return "too many lines: #" + procStr.split("\n").length + ", " + procStr;
-                //FIXME: change to return "Failed to read odometer"?
-            }
-            procStr = procStr.trim();
-            try {
-                double odo = Double.valueOf(procStr);
-            }
-            catch(NumberFormatException nfe) {
-                //procStr = "Non-numeric odometer: " + procStr;
-                //FIXME: change to return "Failed to read odometer"?
-            }
-        }
-
-        else { // imgType == ImageType.MPG, expecting MPG to be (##.#)
-            if(procStr.split("\n").length != 1) {
-                //return "too many lines: #" + procStr.split("\n").length + ", " + procStr;
-                //FIXME: change to return "Failed to read miles per gallon"?
-            }
-            procStr = procStr.trim();
-            procStr = procStr.substring(0, procStr.length() - 1) +
-                    '.' + procStr.substring(procStr.length() - 2 + 1);
-            try {
-                double mpg = Double.valueOf(procStr);
-            }
-            catch(NumberFormatException nfe) {
-                //procStr = "Non-numeric MPG: " + procStr;
-                //FIXME: change to return "Failed to read miles per gallon"?
-            }
-        }
-
-        return procStr;
-        // return "Orig|>" + text + "\nNew|>" + procStr;
-    }
-    public static String removeLinesWithNoNumbers(String str) {
-        String newStr = "";
-        for(String line : str.split("\n")) {
-            for(int i = 0; i < line.length(); i++) {
-                if(Character.isDigit(line.charAt(i))) { // only add lines with #'s
-                    newStr += line + "\n";
-                    break;
-                }
-            }
-        }
-
-        return newStr;
     }
 }

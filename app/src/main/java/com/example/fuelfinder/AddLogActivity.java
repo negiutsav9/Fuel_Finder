@@ -30,7 +30,7 @@ public class AddLogActivity extends AppCompatActivity {
 
         ImageView backButton = getSupportActionBar().getCustomView().findViewById(R.id.BackButton);
         backButton.setOnClickListener((View v) -> {
-            finish();
+            startActivity(new Intent(getApplicationContext(), Dashboard.class));
         });
 
         Button scanButton = findViewById(R.id.ScanButton);

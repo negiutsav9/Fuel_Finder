@@ -3,34 +3,35 @@ package com.example.fuelfinder;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.TimePicker;
 
 import com.google.android.gms.common.api.Status;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
-import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
 
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Formatter;
 import java.util.Locale;
 
 public class ManualEntryActivity extends AppCompatActivity {
@@ -42,15 +43,18 @@ public class ManualEntryActivity extends AppCompatActivity {
     String date;
     int hours, minutes;
     String time;
-    String placeID;
+    double longitude, latitude;
     double total_cost, fuel_refill, odometer, fuel_eco;
     String fuel_type;
+
+    private LocationManager locationManager;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_manual_entry);
+
 
         //Setting up action bar
         this.getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
@@ -62,15 +66,13 @@ public class ManualEntryActivity extends AppCompatActivity {
         getWindow().setNavigationBarColor(getColor(R.color.orange_red));
 
         // Initialize the SDK
-        Places.initialize(getApplicationContext(), BuildConfig.apiKey);
+        Places.initialize(getApplicationContext(), "AIzaSyBEP24tbWMHcUY75yXzCBySAGKXF2ZoJ8A");
 
         // Create a new PlacesClient instance
-        PlacesClient placesClient = Places.createClient(this);
+        //PlacesClient placesClient = Places.createClient(this);
 
         ImageView backButton = getSupportActionBar().getCustomView().findViewById(R.id.BackButton);
-        backButton.setOnClickListener((View v) -> {
-            finish();
-        });
+        backButton.setOnClickListener((View v) -> startActivity(new Intent(getApplicationContext(), AddLogActivity.class)));
 
         //UI Instantiations
         dateButton = findViewById(R.id.datePickerButton);
@@ -91,11 +93,11 @@ public class ManualEntryActivity extends AppCompatActivity {
             datePickerDialog.getButton(DialogInterface.BUTTON_NEGATIVE).setTextColor(getColor(R.color.teal_200));
             datePickerDialog.getButton(DialogInterface.BUTTON_POSITIVE).setTextColor(getColor(R.color.orange_red));
         });
-
+        date = dateButton.getText().toString();
 
         //Time Picker Code
         Calendar now = Calendar.getInstance();
-        timeButton.setText(String.format(Locale.getDefault(), "%02d:%02d",now.get(Calendar.HOUR_OF_DAY), now.get(Calendar.MINUTE)));
+        timeButton.setText(String.format(Locale.getDefault(), "%02d:%02d", now.get(Calendar.HOUR_OF_DAY), now.get(Calendar.MINUTE)));
         timeButton.setOnClickListener((View v) -> {
             TimePickerDialog.OnTimeSetListener onTimeSetListener = new TimePickerDialog.OnTimeSetListener() {
                 @Override
@@ -112,7 +114,7 @@ public class ManualEntryActivity extends AppCompatActivity {
             timePickerDialog.getButton(DialogInterface.BUTTON_NEGATIVE).setTextColor(getColor(R.color.teal_200));
             timePickerDialog.getButton(DialogInterface.BUTTON_POSITIVE).setTextColor(getColor(R.color.orange_red));
         });
-
+        time = timeButton.getText().toString();
 
         //Places AutoComplete View
         // Initialize the AutocompleteSupportFragment.
@@ -128,8 +130,10 @@ public class ManualEntryActivity extends AppCompatActivity {
             public void onPlaceSelected(@NonNull Place place) {
                 // TODO: Get info about the selected place.
                 Log.i(TAG, "Place: " + place.getName() + ", " + place.getLatLng());
-                placeID = place.getId();
+                longitude = place.getLatLng().longitude;
+                latitude = place.getLatLng().latitude;
             }
+
             @Override
             public void onError(@NonNull Status status) {
                 // TODO: Handle the error.
@@ -137,56 +141,31 @@ public class ManualEntryActivity extends AppCompatActivity {
             }
         });
 
-        //Receiving and handling bundles from scan and log edit
-        Intent manualEntryFetch = getIntent();
-        if (manualEntryFetch.getStringExtra("DateEdit") != null) {
-            date = manualEntryFetch.getStringExtra("DateEdit");
-            dateButton.setText(date);
+        // Get the current location using LocationManager
+        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
         }
-        if (manualEntryFetch.getStringExtra("TimeEdit") != null) {
-            time = manualEntryFetch.getStringExtra("TimeEdit");
-            timeButton.setText(time);
-        }
-        if (manualEntryFetch.getStringExtra("PlaceIDEdit") != null) {
-            placeID = manualEntryFetch.getStringExtra("PlaceIDEdit");
-        }
-        if (manualEntryFetch.getDoubleExtra("CostEdit", -10) != -10) {
-            total_cost = manualEntryFetch.getDoubleExtra("CostEdit", 0);
-            cost_edit.setText(total_cost+"");
-        } else if (manualEntryFetch.getDoubleExtra("CostScan", -10) != -10){
-            total_cost = manualEntryFetch.getDoubleExtra("CostScan", 0);
-            cost_edit.setText(total_cost+"");
-        }
-        if (manualEntryFetch.getDoubleExtra("CapacityEdit", -10) != -10) {
-            fuel_refill = manualEntryFetch.getDoubleExtra("CapacityEdit", 0);
-            fuel_refill_edit.setText(fuel_refill+"");
-        } else if (manualEntryFetch.getDoubleExtra("CapacityScan", -10) != -10){
-            fuel_refill = manualEntryFetch.getDoubleExtra("CapacityScan",0);
-            fuel_refill_edit.setText(fuel_refill+"");
-        }
-        if (manualEntryFetch.getStringExtra("TypeEdit") != null) {
-            fuel_type = manualEntryFetch.getStringExtra("TypeEdit");
-            fuel_type_edit.setText(fuel_type);
-        }
-        if (manualEntryFetch.getDoubleExtra("OdometerEdit", -10) != -10) {
-            odometer = manualEntryFetch.getDoubleExtra("OdometerEdit", 0);
-            odometer_edit.setText(odometer+"");
-        } else if (manualEntryFetch.getDoubleExtra("OdometerScan",-10) != -10){
-            odometer = manualEntryFetch.getDoubleExtra("OdometerScan",0);
-            odometer_edit.setText(odometer+"");
-        }
-        if (manualEntryFetch.getDoubleExtra("EconomyEdit",-10) != -10) {
-            fuel_eco = manualEntryFetch.getDoubleExtra("EconomyEdit", 0);
-            fuel_eco_edit.setText(fuel_eco+"");
-        } else if (manualEntryFetch.getDoubleExtra("EconomyScan",-10) != -10){
-            fuel_eco = manualEntryFetch.getDoubleExtra("EconomyScan", 0);
-            fuel_eco_edit.setText(fuel_eco+"");
-        }
+        Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+
+        // If location is not null, use it as the default value for the AutocompleteSupportFragment
+//       // if (location != null) {
+//            latitude = location.getLatitude();
+//            longitude = location.getLongitude();
+//            Log.d(TAG, "Current location: " + latitude + ", " + longitude);
+//            String defaultLocation = latitude + "," + longitude;
+//            autocompleteFragment.setText(defaultLocation);
+//        }
 
         //On Clicking Review
         review.setOnClickListener((View v) -> {
-            date = dateButton.getText().toString();
-            time = timeButton.getText().toString();
             Intent reviewIntent = new Intent(getApplicationContext(), ReviewActivity.class);
             if(!cost_edit.getText().toString().trim().equals("")){
                 total_cost = Double.parseDouble(cost_edit.getText().toString().trim());
@@ -210,13 +189,10 @@ public class ManualEntryActivity extends AppCompatActivity {
                 fuel_eco = 0;
             }
 
-            if(manualEntryFetch.getStringExtra("DocID") != null){
-                reviewIntent.putExtra("DocID", manualEntryFetch.getStringExtra("DocID"));
-            }
-
             reviewIntent.putExtra("Date", date);
             reviewIntent.putExtra("Time", time);
-            reviewIntent.putExtra("PlaceID", placeID);
+            reviewIntent.putExtra("Longitude", longitude);
+            reviewIntent.putExtra("Latitude", latitude);
             reviewIntent.putExtra("Cost", total_cost);
             reviewIntent.putExtra("Capacity", fuel_refill);
             reviewIntent.putExtra("Type", fuel_type);
@@ -236,13 +212,10 @@ public class ManualEntryActivity extends AppCompatActivity {
     }
 
     private void initDatePicker() {
-        DatePickerDialog.OnDateSetListener dateSetListener = new DatePickerDialog.OnDateSetListener() {
-            @Override
-            public void onDateSet(DatePicker datePicker, int year, int month, int day) {
-                month = month + 1;
-                date = makeDateString(day, month, year);
-                dateButton.setText(date);
-            }
+        DatePickerDialog.OnDateSetListener dateSetListener = (datePicker, year, month, day) -> {
+            month = month + 1;
+            date = makeDateString(day, month, year);
+            dateButton.setText(date);
         };
         Calendar cal = Calendar.getInstance();
         int year = cal.get(Calendar.YEAR);
@@ -283,4 +256,30 @@ public class ManualEntryActivity extends AppCompatActivity {
             return "December";
         }
     }
+
+    //location
+//    private final LocationListener locationListener = new LocationListener() {
+//        @Override
+//        public void onLocationChanged(Location location) {
+//            // Use the location object to get latitude and longitude
+//            double latitude = location.getLatitude();
+//            double longitude = location.getLongitude();
+//            Log.d(TAG, "Current location: " + latitude + ", " + longitude);
+//            // Set the default value of the AutocompleteSupportFragment
+//            AutocompleteSupportFragment autocompleteFragment = (AutocompleteSupportFragment)
+//                    getSupportFragmentManager().findFragmentById(R.id.autocomplete_fragment);
+//            autocompleteFragment.setText(latitude + "," + longitude);
+//            // Stop location updates to conserve battery
+//            locationManager.removeUpdates(locationListener);
+//        }
+
+//        @Override
+//        public void onProviderEnabled(String provider) {}
+//
+//        @Override
+//        public void onProviderDisabled(String provider) {}
+//
+//        @Override
+//        public void onStatusChanged(String provider, int status, Bundle extras) {}
+//    };
 }

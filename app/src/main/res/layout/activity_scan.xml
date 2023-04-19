@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -8,62 +8,68 @@
     tools:context=".ScanActivity">
 
     <ImageView
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:src="@drawable/camera_icon"
-        android:layout_centerHorizontal="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:id="@+id/pumpIV"/>
     <Button
-        android:id="@+id/gasPumpButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Capture Gas Pump"
         android:onClick="takePumpImage"
         android:backgroundTint="@color/orange_red"
-        android:textColor="@color/white"
-        android:layout_below="@+id/pumpIV"/>
+        android:textColor="@color/white"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/pumpTV"
+        android:textSize="25sp"
+        android:textStyle="bold"/>
+
 
     <ImageView
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:src="@drawable/camera_icon"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@id/gasPumpButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:id="@+id/odoIV"/>
     <Button
-        android:id="@+id/odometerButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/odoIV"
         android:text="Capture Odometer"
         android:onClick="takeOdoImage"
         android:backgroundTint="@color/orange_red"
         android:textColor="@color/white"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/odoTV"
+        android:textSize="25sp"
+        android:textStyle="bold"
+        />
+
 
     <ImageView
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:src="@drawable/camera_icon"
-        android:layout_centerHorizontal="true"
-        android:id="@+id/mpgIV"
-        android:layout_below="@id/odometerButton"/>
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/mpgIV"/>
     <Button
-        android:id="@+id/mpgButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/mpgIV"
         android:text="Capture Miles per Gallon"
         android:onClick="takeMPGImage"
         android:backgroundTint="@color/orange_red"
         android:textColor="@color/white"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/mpgTV"
+        android:textSize="25sp"
+        android:textStyle="bold"/>
 
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/mpgButton"
         android:text="Continue to Manual Entry"
         android:onClick="continueButtonPress"
         android:backgroundTint="@color/orange_red"
         android:textColor="@color/white"/>
 
-</RelativeLayout>
+</LinearLayout>
