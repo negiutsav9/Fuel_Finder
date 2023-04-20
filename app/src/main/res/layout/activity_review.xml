@@ -272,7 +272,14 @@
                 android:layout_height="150dp"
                 tools:context="com.example.mapwithmarker.MapsMarkerActivity"
                 tools:layout="@android:layout/simple_spinner_item" />
-
+            <TextView
+                android:id="@+id/noID"
+                android:layout_width="match_parent"
+                android:layout_height="150dp"
+                android:text="No Location Added "
+                android:textAlignment="center"
+                android:paddingVertical="55dp"
+                />
         </androidx.cardview.widget.CardView>
 
 

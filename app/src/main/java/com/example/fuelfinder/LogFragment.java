@@ -171,8 +171,8 @@ public class LogFragment extends Fragment{
         public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             // Inflate the appropriate view holder based on the view type.
             if(viewType == HIDE_MENU){
-                // Initialize the Places API client
-                Places.initialize(parent.getContext(), "AIzaSyBEP24tbWMHcUY75yXzCBySAGKXF2ZoJ8A");
+
+                Places.initialize(parent.getContext(), BuildConfig.apiKey);
                 placesClient = Places.createClient(parent.getContext());
                 // Inflate the view holder for a log item without a menu
                 return new LogViewHolder(FragmentLogBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false));
@@ -207,22 +207,23 @@ public class LogFragment extends Fragment{
 
                 // Get the Place ID for the fuel station associated with this log
                 String placeID = log.getPlaceID();
-                final List<Place.Field> placeFields = Arrays.asList(Place.Field.NAME, Place.Field.LAT_LNG);
-                final FetchPlaceRequest request = FetchPlaceRequest.newInstance(placeID, placeFields);
 
-                // Fetch the name and location of the fuel station using the Places API client
-                placesClient.fetchPlace(request).addOnSuccessListener((response) -> {
-                    double latitude,longitude;
-                    Place place = response.getPlace();
-                    ((LogViewHolder) holder).getFuelStationTV().setText(place.getName());
-                    latitude = place.getLatLng().latitude;
-                    longitude = place.getLatLng().longitude;
-                    // Construct a URL for a static map image of the fuel station location
-                    String imageUrl = "https://maps.googleapis.com/maps/api/staticmap?center="+
-                            latitude+","+longitude+"&zoom=14&scale3&size=170x180&markers=color:red%7Csize:mid%7Clabel:S%7C" +
-                            + latitude+","+longitude+"&maptype=roadmap&key=AIzaSyBEP24tbWMHcUY75yXzCBySAGKXF2ZoJ8A";
-                    Picasso.with(getContext()).load(imageUrl).into(((LogViewHolder) holder).getFuelMapIV());
-                });
+                if(placeID != null){
+                    final List<Place.Field> placeFields = Arrays.asList(Place.Field.NAME, Place.Field.LAT_LNG);
+                    final FetchPlaceRequest request = FetchPlaceRequest.newInstance(placeID, placeFields);
+
+                    placesClient.fetchPlace(request).addOnSuccessListener((response) -> {
+                        double latitude,longitude;
+                        Place place = response.getPlace();
+                        ((LogViewHolder) holder).getFuelStationTV().setText(place.getName());
+                        latitude = place.getLatLng().latitude;
+                        longitude = place.getLatLng().longitude;
+                        String imageUrl = "https://maps.googleapis.com/maps/api/staticmap?center="+
+                                latitude+","+longitude+"&zoom=14&scale3&size=170x180&markers=color:red%7Csize:mid%7Clabel:S%7C" +
+                                + latitude+","+longitude+"&maptype=roadmap&key=" + BuildConfig.apiKey;
+                        Picasso.with(getContext()).load(imageUrl).into(((LogViewHolder) holder).getFuelMapIV());
+                    });
+                }
 
                 ((LogViewHolder)holder).getContainer().setOnLongClickListener(new View.OnLongClickListener() {
                     @Override
@@ -263,29 +264,36 @@ public class LogFragment extends Fragment{
 
                 // Fetch the place associated with the log's place ID and update the atomic references for latitude, longitude, and fuel station name
                 String placeID = log.getPlaceID();
-                final List<Place.Field> placeFields = Arrays.asList(Place.Field.NAME, Place.Field.LAT_LNG);
-                final FetchPlaceRequest request = FetchPlaceRequest.newInstance(placeID, placeFields);
 
-                placesClient.fetchPlace(request).addOnSuccessListener((response) -> {
-                    Place place = response.getPlace();
-                    latitude.set(place.getLatLng().latitude);
-                    longitude.set(place.getLatLng().longitude);
-                    fuelStationName.set(place.getName());
-                    ((MenuViewHolder) holder).getFuelStationTV().setText(fuelStationName.get());
+                if(placeID != null){
+                    final List<Place.Field> placeFields = Arrays.asList(Place.Field.NAME, Place.Field.LAT_LNG);
+                    final FetchPlaceRequest request = FetchPlaceRequest.newInstance(placeID, placeFields);
 
-                });
+                    placesClient.fetchPlace(request).addOnSuccessListener((response) -> {
+                        Place place = response.getPlace();
+                        latitude.set(place.getLatLng().latitude);
+                        longitude.set(place.getLatLng().longitude);
+                        fuelStationName.set(place.getName());
+                        ((MenuViewHolder) holder).getFuelStationTV().setText(fuelStationName.get());
 
-                // Set an OnClickListener for the "View Map" option in the MenuViewHolder that opens Google Maps with the fuel station's location
-                ((MenuViewHolder) holder).getViewMapOption().setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        String mapUri = "geo:0,0?q="+ fuelStationName.get().replace(" ", "+") + "@" + latitude +"," + longitude;
-                        Uri gmmIntentUri = Uri.parse(mapUri);
-                        Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
-                        mapIntent.setPackage("com.google.android.apps.maps");
-                        startActivity(mapIntent);
-                    }
-                });
+                    });
+                }
+
+                if(placeID != null){
+                    ((MenuViewHolder) holder).getViewMapOption().setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            String mapUri = "geo:0,0?q="+ fuelStationName.get().replace(" ", "+") + "@" + latitude +"," + longitude;
+                            Uri gmmIntentUri = Uri.parse(mapUri);
+                            Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+                            mapIntent.setPackage("com.google.android.apps.maps");
+                            startActivity(mapIntent);
+                        }
+                    });
+                } else {
+                    ((MenuViewHolder) holder).getViewMapOption().setClickable(false);
+                }
+
 
                 ((MenuViewHolder) holder).getEditOption().setOnClickListener(new View.OnClickListener() {
                     @Override
