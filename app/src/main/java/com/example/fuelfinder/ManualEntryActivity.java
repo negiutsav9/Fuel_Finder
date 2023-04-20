@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.DialogInterface;
@@ -22,8 +23,12 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 
 import com.google.android.gms.common.api.Status;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.api.net.FetchPlaceRequest;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
@@ -31,6 +36,7 @@ import com.google.android.libraries.places.widget.listener.PlaceSelectionListene
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Formatter;
+import java.util.List;
 import java.util.Locale;
 
 public class ManualEntryActivity extends AppCompatActivity {
@@ -42,11 +48,12 @@ public class ManualEntryActivity extends AppCompatActivity {
     String date;
     int hours, minutes;
     String time;
-    String placeID;
+    String placeID = null;
     double total_cost, fuel_refill, odometer, fuel_eco;
     String fuel_type;
 
 
+    @SuppressLint("ResourceType")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -125,8 +132,10 @@ public class ManualEntryActivity extends AppCompatActivity {
         // Set up a PlaceSelectionListener to handle the response.
         autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
-            public void onPlaceSelected(@NonNull Place place) {
-                // TODO: Get info about the selected place.
+            public void onPlaceSelected(Place place) {
+                if(place == null){
+                    placeID = null;
+                }
                 Log.i(TAG, "Place: " + place.getName() + ", " + place.getLatLng());
                 placeID = place.getId();
             }
@@ -149,6 +158,12 @@ public class ManualEntryActivity extends AppCompatActivity {
         }
         if (manualEntryFetch.getStringExtra("PlaceIDEdit") != null) {
             placeID = manualEntryFetch.getStringExtra("PlaceIDEdit");
+            final List<Place.Field> placeFields = Arrays.asList(Place.Field.NAME);
+            final FetchPlaceRequest request = FetchPlaceRequest.newInstance(placeID, placeFields);
+            placesClient.fetchPlace(request).addOnSuccessListener((response) -> {
+                Place place = response.getPlace();
+                autocompleteFragment.setText(place.getName());
+            });
         }
         if (manualEntryFetch.getDoubleExtra("CostEdit", -10) != -10) {
             total_cost = manualEntryFetch.getDoubleExtra("CostEdit", 0);
