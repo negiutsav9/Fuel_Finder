@@ -4,6 +4,7 @@ package com.example.fuelfinder;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 
 
@@ -11,6 +12,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.location.Criteria;
@@ -21,6 +23,9 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -28,6 +33,8 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MapStyleOptions;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
@@ -36,6 +43,7 @@ import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.material.navigation.NavigationBarView;
 import com.squareup.picasso.Picasso;
 
+import org.checkerframework.checker.units.qual.A;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -56,28 +64,23 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class MapActivity extends AppCompatActivity implements OnMapReadyCallback{
-
-    /**
-     * Request code for location permission request.
-     *
-     * @see #onRequestPermissionsResult(int, String[], int[])
-     */
-    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
-
-    /**
-     * Flag indicating whether a requested permission has been denied after returning in {@link
-     * #onRequestPermissionsResult(int, String[], int[])}.
-     */
-    private boolean permissionDenied = false;
+public class MapActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMapClickListener {
 
     private GoogleMap map;
 
     private PlacesClient placesClient;
 
-    private Map<String, String> hashMap = new HashMap<String, String>();
+    private HashMap<String, HashMap<String, Object>> nearbyPlaces = new HashMap<>();
 
     private ArrayList<String> nearby_placeID = new ArrayList<>();
+    private ArrayList<Marker> nearby_markers = new ArrayList<>();
+
+    private CardView markerDetail;
+    private TextView markerName;
+    private TextView markerAddress;
+    private TextView markerPhone;
+    private TextView markerPrice;
+    private TextView markerRating;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,6 +99,13 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         getSupportActionBar().setCustomView(R.layout.custom_action_bar_maps);
         getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#F44336")));
         getSupportActionBar().setElevation(0);
+
+        markerDetail = findViewById(R.id.markerDetail);
+        markerName = findViewById(R.id.Name);
+        markerAddress = findViewById(R.id.address);
+        markerPhone = findViewById(R.id.phone_number);
+        markerPrice = findViewById(R.id.price_lvl);
+        markerRating = findViewById(R.id.rating);
 
         getWindow().setNavigationBarColor(getColor(R.color.orange_red));
 
@@ -131,10 +141,35 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     }
 
     @Override
-    public void onMapReady(GoogleMap googleMap) {
+    public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                                           int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case 1: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    if (ActivityCompat.checkSelfPermission(this,
+                            Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                        Toast.makeText(this, "Permission Granted", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(this, "Permission Denied", Toast.LENGTH_SHORT).show();
+                }
+                return;
+            }
+        }
+    }
 
-        //Aligning the map to the current location when the activity is started
-        map = googleMap;
+    @Override
+    public void onMapReady(GoogleMap map) {
+
+        int nightModeFlags = getApplicationContext().getResources().getConfiguration().uiMode &
+                        Configuration.UI_MODE_NIGHT_MASK;
+
+        if(nightModeFlags == Configuration.UI_MODE_NIGHT_YES){
+            map.setMapStyle(MapStyleOptions.loadRawResourceStyle(this,R.raw.style_json));
+        }
+
+        map.setOnMapClickListener(this);
         LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         Criteria criteria = new Criteria();
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -145,20 +180,25 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             //                                          int[] grantResults)
             // to handle the case where the user grants the permission. See the documentation
             // for ActivityCompat#requestPermissions for more details.
-            return;
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.ACCESS_FINE_LOCATION)){
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+            }else{
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+            }
         }
         Location location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
         if (location != null)
         {
             map.setMyLocationEnabled(true);
-            map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 13));
-
             CameraPosition cameraPosition = new CameraPosition.Builder()
                     .target(new LatLng(location.getLatitude(), location.getLongitude()))      // Sets the center of the map to location user
                     .zoom(15)                   // Sets the zoom
                     .tilt(40)                   // Sets the tilt of the camera to 30 degrees
                     .build();                   // Creates a CameraPosition from the builder
-            map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+            map.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 
             //Extracting info about nearby gas station using background thread
             StringBuilder url_string = new StringBuilder("https://maps.googleapis.com/maps/api/place/nearbysearch/json?");
@@ -188,7 +228,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     JSONArray jsonArray = (JSONArray) jObject.get("results");
                     for(int i = 0; i < jsonArray.length(); i++){
                         JSONObject entry = new JSONObject(jsonArray.get(i).toString());
-                        nearby_placeID.add(entry.get("place_id").toString());
+                        nearbyPlaces.put(entry.get("place_id").toString(), new HashMap<String, Object>());
                     }
                 } catch (MalformedURLException e) {
                     throw new RuntimeException(e);
@@ -198,22 +238,60 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     throw new RuntimeException(e);
                 }
                 handler.post(() -> {
-                    for(String id : nearby_placeID){
-                        final List<Place.Field> placeFields = Arrays.asList(Place.Field.NAME, Place.Field.LAT_LNG);
-                        final FetchPlaceRequest request = FetchPlaceRequest.newInstance(id, placeFields);
+                    for(Map.Entry<String, HashMap<String, Object>> mapElement : nearbyPlaces.entrySet()){
+                        final List<Place.Field> placeFields = Arrays.asList(Place.Field.NAME, Place.Field.LAT_LNG, Place.Field.ADDRESS, Place.Field.PHOTO_METADATAS, Place.Field.PHONE_NUMBER, Place.Field.OPENING_HOURS, Place.Field.WEBSITE_URI, Place.Field.PRICE_LEVEL, Place.Field.RATING);
+                        final FetchPlaceRequest request = FetchPlaceRequest.newInstance(mapElement.getKey(), placeFields);
                         placesClient.fetchPlace(request).addOnSuccessListener((response) -> {
-                            Place place = response.getPlace();
-                            Log.d("Place API", "Place found: " + place.getName());
-                            LatLng pointer = new LatLng(place.getLatLng().latitude, place.getLatLng().longitude);
-                            googleMap.addMarker(new MarkerOptions().position(pointer));
+                           Place place = response.getPlace();
+                           //creating markers
+                           LatLng pointer = new LatLng(place.getLatLng().latitude, place.getLatLng().longitude);
+                           nearby_markers.add(map.addMarker(new MarkerOptions().position(pointer).snippet(mapElement.getKey())));
+                            //adding the nearby fuel station data to hashmap
+                            mapElement.getValue().put("Name", place.getName());
+                            //mapElement.getValue().put("Latitude", place.getLatLng().latitude);
+                            //mapElement.getValue().put("Longitude", place.getLatLng().longitude);
+                            mapElement.getValue().put("Address", place.getAddress());
+                            mapElement.getValue().put("Phone", place.getPhoneNumber());
+                            //mapElement.getValue().put("Images_MD", place.getPhotoMetadatas());
+                            mapElement.getValue().put("Price", place.getPriceLevel());
+                            mapElement.getValue().put("Rating", place.getRating());
                         });
                     }
+
+                    map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+                        @Override
+                        public boolean onMarkerClick(Marker marker) {
+                            //center the marker
+                            CameraPosition cameraPosition = new CameraPosition.Builder()
+                                    .target(marker.getPosition())      // Sets the center of the map to location user
+                                    .zoom(15)                   // Sets the zoom
+                                    .tilt(40)                   // Sets the tilt of the camera to 40 degrees
+                                    .build();                   // Creates a CameraPosition from the builder
+                            map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+                            //pop up the marker detail
+                            markerDetail.setVisibility(View.VISIBLE);
+                            HashMap<String, Object> details = nearbyPlaces.get(marker.getSnippet());
+                            markerName.setText(details.get("Name").toString());
+                            markerAddress.setText(details.get("Address").toString());
+                            if(details.get("Phone") != null){
+                                markerPhone.setText(details.get("Phone").toString());
+                            }
+                            if(details.get("Price") != null){
+                                markerPrice.setText(details.get("Price").toString());
+                            }
+                            if(details.get("Rating") != null){
+                                markerRating.setText(details.get("Rating").toString());
+                            }
+                            return true;
+                        }
+                    });
                 });
             });
-
-
-
-
         }
+    }
+
+    @Override
+    public void onMapClick(LatLng latLng) {
+        markerDetail.setVisibility(View.GONE);
     }
 }
