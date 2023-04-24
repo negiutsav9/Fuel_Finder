@@ -54,16 +54,22 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public class LogFragment extends Fragment{
 
+    // Number of columns to display in the RecyclerView
     private int mColumnCount = 1;
+    // List of LogModel objects to display in the RecyclerView
     private ArrayList<LogModel> logModelArrayList;
+    // Firebase Firestore instance for database access
     private FirebaseFirestore firebaseFirestore;
+    // Firebase Authentication instance for user authentication
     private FirebaseAuth firebaseAuth;
+    // RecyclerView adapter for displaying the log data
     private MyLogRecyclerViewAdapter adapter;
 
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // Set a thread policy to permit network access
         if (android.os.Build.VERSION.SDK_INT > 9)
         {
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
@@ -74,25 +80,33 @@ public class LogFragment extends Fragment{
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_log_list, container, false);
 
+        // Initialize Firebase instances
         firebaseFirestore = FirebaseFirestore.getInstance();
         firebaseAuth = FirebaseAuth.getInstance();
+        // Create an empty list to hold the LogModel objects
         logModelArrayList = new ArrayList<>();
+        // Create a RecyclerView adapter with the empty list
         adapter = new MyLogRecyclerViewAdapter(logModelArrayList);
 
         // Set the adapter
         if (view instanceof RecyclerView) {
             Context context = view.getContext();
             RecyclerView recyclerView = (RecyclerView) view;
+            // Set the RecyclerView layout manager based on the number of columns too display
             if (mColumnCount <= 1) {
                 recyclerView.setLayoutManager(new LinearLayoutManager(context));
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
+            // Set the RecyclerView to have a fixed size for improved performance
             recyclerView.setHasFixedSize(true);
+            // Set the adapter for the RecyclerView
             recyclerView.setAdapter(adapter);
 
+            // Add a scroll listener to the RecyclerView to close any open menus
             recyclerView.setOnScrollChangeListener(new View.OnScrollChangeListener() {
                 @Override
                 public void onScrollChange(View v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
@@ -102,12 +116,15 @@ public class LogFragment extends Fragment{
 
         }
 
+        // Query the database for logs belonging to the current user and order them by timestamp in descending order
         firebaseFirestore.collection("User").document(firebaseAuth.getUid()).collection("Logs").orderBy("timestamp", Query.Direction.DESCENDING)
                 .get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
                     public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                        // Retrieve a list of DocumentSnapshot objects representing the logs
                         List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
                         if (!queryDocumentSnapshots.isEmpty()) {
+                            // Iterate through the list of logs and add them to the logModelArrayList
                             for (DocumentSnapshot d : list) {
                                 // after getting this list we are passing
                                 // that list to our object class.
@@ -126,12 +143,15 @@ public class LogFragment extends Fragment{
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
+                        // If there is a failure while retrieving the logs, display a toast message
                         Toast.makeText(view.getContext(), "Fail to get the data.", Toast.LENGTH_SHORT).show();
                     }
                 });
+        // Return the view
         return view;
     }
 
+    // Define a custom RecyclerView adapter for displaying the logs
     class MyLogRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         private final int SHOW_MENU = 1;
@@ -149,6 +169,7 @@ public class LogFragment extends Fragment{
 
         @Override
         public int getItemViewType(int position) {
+            // Determine the view type based on whether or not the log at this positino should show a menu
             if (logsArrayList.get(position).isShowMenu()){
                 return SHOW_MENU;
             } else {
@@ -159,17 +180,22 @@ public class LogFragment extends Fragment{
         @NonNull
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            // Inflate the appropriate view holder based on the view type
             if(viewType == HIDE_MENU){
+                // Initialize the Places API client
                 Places.initialize(parent.getContext(), BuildConfig.apiKey);
                 placesClient = Places.createClient(parent.getContext());
+                // Inflate the view holder for a log item without a menu
                 return new LogViewHolder(FragmentLogBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false));
             } else {
+                // Inflate the view holder for a log item with a menu
                 return new MenuViewHolder(FragmentLogMenuBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false));
             }
         }
 
         @Override
         public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, @SuppressLint("RecyclerView") int position) {
+            // Get the log at this position in the logArrayList
             LogModel log = logsArrayList.get(position);
             // setting data to our text views from our modal class.
             if(holder instanceof LogViewHolder){
@@ -193,6 +219,7 @@ public class LogFragment extends Fragment{
                     final List<Place.Field> placeFields = Arrays.asList(Place.Field.NAME, Place.Field.LAT_LNG);
                     final FetchPlaceRequest request = FetchPlaceRequest.newInstance(log.getPlaceID(), placeFields);
 
+                    // Fetch the name and location of the fuel station using the Places API client
                     placesClient.fetchPlace(request).addOnSuccessListener((response) -> {
                         double latitude,longitude;
                         Place place = response.getPlace();
@@ -201,6 +228,7 @@ public class LogFragment extends Fragment{
                         longitude = place.getLatLng().longitude;
                         int nightModeFlags = getContext().getResources().getConfiguration().uiMode &
                                 Configuration.UI_MODE_NIGHT_MASK;
+                        // Construct a URL for a static map image of the fuel station location
                         String imageUrl;
                         if(nightModeFlags == Configuration.UI_MODE_NIGHT_YES){
                             imageUrl = "https://maps.googleapis.com/maps/api/staticmap?center="+
