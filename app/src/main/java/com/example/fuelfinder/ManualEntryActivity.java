@@ -184,7 +184,6 @@ public class ManualEntryActivity extends AppCompatActivity {
             odometer_edit.setText(odometer+"");
         } else if (manualEntryFetch.getIntExtra("OdometerScan",-10) != -10){
             odometer = manualEntryFetch.getIntExtra("OdometerScan",0);
-            Log.d("scan:", "manualOdo:" + odometer);
             if(odometer > 0) odometer_edit.setText(odometer+"");
         }
         if (manualEntryFetch.getDoubleExtra("EconomyEdit",-10) != -10) {

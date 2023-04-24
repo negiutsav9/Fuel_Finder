@@ -140,7 +140,6 @@ public class ScanActivity extends AppCompatActivity {
                 if(imgType == ImageType.PUMP) {
                     s = processMLText(s);
                     pumpStr = s;
-                    Log.d("scan:", "pump:" + s);
                     // change button color to green--value was read in
                     if(!pumpStr.equals("\n")) { // should be int + "\n" + int
                         Button gasButton = findViewById(R.id.gasPumpButton);
