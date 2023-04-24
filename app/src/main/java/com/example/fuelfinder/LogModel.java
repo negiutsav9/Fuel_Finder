@@ -12,7 +12,7 @@ public class LogModel {
     private double gallons_of_fuel;
     private double estimated_rate;
     private double miles_per_gallon;
-    private double odometer_reading;
+    private int odometer_reading;
     private String fuel_type;
     private boolean showMenu = false;
     private String placeID;
@@ -22,7 +22,7 @@ public class LogModel {
 
     public LogModel(String id, String date, String time, double total_cost, double gallons_of_fuel,
                     double estimated_rate, String placeID, double miles_per_gallon,
-                     double odometer_reading, String fuel_type, boolean showMenu) {
+                     int odometer_reading, String fuel_type, boolean showMenu) {
         this.id = id;
         this.date = date;
         this.time = time;
