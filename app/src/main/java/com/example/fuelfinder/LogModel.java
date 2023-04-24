@@ -4,22 +4,25 @@ import com.google.firebase.firestore.GeoPoint;
 
 import java.util.HashMap;
 
+//define model class for each log entry in the app
 public class LogModel {
-    private String id;
-    private String date;
-    private String time;
-    private double total_cost;
-    private double gallons_of_fuel;
-    private double estimated_rate;
-    private double miles_per_gallon;
-    private double odometer_reading;
-    private String fuel_type;
-    private boolean showMenu = false;
-    private String placeID;
+    private String id;                  // unique id for log entry
+    private String date;                // date of the log entry
+    private String time;                // time of log entry
+    private double total_cost;          // total cost of fuel purchase
+    private double gallons_of_fuel;     // amount of fuel purchased in gallons
+    private double estimated_rate;      //estimated cost per gallon of fuel
+    private double miles_per_gallon;    // miles per gallon for the vehicle
+    private double odometer_reading;    // odometer reading for the vehicle at time of log entry
+    private String fuel_type;           // type of fuel purchased
+    private boolean showMenu = false;   // whether the log entry menu is currently visible
+    private String placeID;             // place ID of the fuel station where the purchase was made
 
 
+    // default constructor required for Firebase
     public LogModel(){}
 
+    // constructor to create a new og entry object
     public LogModel(String id, String date, String time, double total_cost, double gallons_of_fuel,
                     double estimated_rate, String placeID, double miles_per_gallon,
                      double odometer_reading, String fuel_type, boolean showMenu) {
@@ -36,7 +39,7 @@ public class LogModel {
         this.showMenu = showMenu;
     }
 
-
+    // define getter and setter methods for each attribute of the log entry
     public String getId() {
         return id;
     }

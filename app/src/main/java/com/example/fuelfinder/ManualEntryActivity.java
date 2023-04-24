@@ -4,7 +4,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.DialogInterface;
@@ -23,12 +22,8 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 
 import com.google.android.gms.common.api.Status;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
-import com.google.android.libraries.places.api.net.FetchPlaceRequest;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
@@ -36,7 +31,6 @@ import com.google.android.libraries.places.widget.listener.PlaceSelectionListene
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Formatter;
-import java.util.List;
 import java.util.Locale;
 
 public class ManualEntryActivity extends AppCompatActivity {
@@ -48,12 +42,11 @@ public class ManualEntryActivity extends AppCompatActivity {
     String date;
     int hours, minutes;
     String time;
-    String placeID = null;
+    String placeID;
     double total_cost, fuel_refill, odometer, fuel_eco;
     String fuel_type;
 
 
-    @SuppressLint("ResourceType")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,6 +67,7 @@ public class ManualEntryActivity extends AppCompatActivity {
         // Create a new PlacesClient instance
         PlacesClient placesClient = Places.createClient(this);
 
+        // Back button to return to previous activity
         ImageView backButton = getSupportActionBar().getCustomView().findViewById(R.id.BackButton);
         backButton.setOnClickListener((View v) -> {
             finish();
@@ -112,10 +106,11 @@ public class ManualEntryActivity extends AppCompatActivity {
                     timeButton.setText(String.format(Locale.getDefault(), "%02d:%02d", hours, minutes));
                 }
             };
-
+            //Create and show a TimePickerDialog
             TimePickerDialog timePickerDialog = new TimePickerDialog(this, onTimeSetListener, hours, minutes, true);
             timePickerDialog.setTitle("Select Time");
             timePickerDialog.show();
+            //Change the text color of the positive and negative buttons in the dialog
             timePickerDialog.getButton(DialogInterface.BUTTON_NEGATIVE).setTextColor(getColor(R.color.teal_200));
             timePickerDialog.getButton(DialogInterface.BUTTON_POSITIVE).setTextColor(getColor(R.color.orange_red));
         });
@@ -132,10 +127,8 @@ public class ManualEntryActivity extends AppCompatActivity {
         // Set up a PlaceSelectionListener to handle the response.
         autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
-            public void onPlaceSelected(Place place) {
-                if(place == null){
-                    placeID = null;
-                }
+            public void onPlaceSelected(@NonNull Place place) {
+                // TODO: Get info about the selected place.
                 Log.i(TAG, "Place: " + place.getName() + ", " + place.getLatLng());
                 placeID = place.getId();
             }
@@ -158,12 +151,6 @@ public class ManualEntryActivity extends AppCompatActivity {
         }
         if (manualEntryFetch.getStringExtra("PlaceIDEdit") != null) {
             placeID = manualEntryFetch.getStringExtra("PlaceIDEdit");
-            final List<Place.Field> placeFields = Arrays.asList(Place.Field.NAME);
-            final FetchPlaceRequest request = FetchPlaceRequest.newInstance(placeID, placeFields);
-            placesClient.fetchPlace(request).addOnSuccessListener((response) -> {
-                Place place = response.getPlace();
-                autocompleteFragment.setText(place.getName());
-            });
         }
         if (manualEntryFetch.getDoubleExtra("CostEdit", -10) != -10) {
             total_cost = manualEntryFetch.getDoubleExtra("CostEdit", 0);
@@ -241,6 +228,7 @@ public class ManualEntryActivity extends AppCompatActivity {
         });
     }
 
+    // Get current date
     private String getTodayDate() {
         Calendar cal = Calendar.getInstance();
         int year = cal.get(Calendar.YEAR);
@@ -250,6 +238,7 @@ public class ManualEntryActivity extends AppCompatActivity {
         return makeDateString(day, month, year);
     }
 
+    // Initializes a DatePickerDialog to allow user to select a date
     private void initDatePicker() {
         DatePickerDialog.OnDateSetListener dateSetListener = new DatePickerDialog.OnDateSetListener() {
             @Override
@@ -259,6 +248,7 @@ public class ManualEntryActivity extends AppCompatActivity {
                 dateButton.setText(date);
             }
         };
+        // Get current date to use as initial date for the DatePickerDialog
         Calendar cal = Calendar.getInstance();
         int year = cal.get(Calendar.YEAR);
         int month = cal.get(Calendar.MONTH);
@@ -267,10 +257,12 @@ public class ManualEntryActivity extends AppCompatActivity {
         datePickerDialog = new DatePickerDialog(this, dateSetListener, year, month, day);
     }
 
+    // Formats a day, month, year as a string
     private String makeDateString(int day, int month, int year) {
         return getMonthFormat(month) + " " + day + ", " + year;
     }
 
+    // This method returns the name of the month given its number
     private String getMonthFormat(int month) {
         if(month == 1){
             return "January";
