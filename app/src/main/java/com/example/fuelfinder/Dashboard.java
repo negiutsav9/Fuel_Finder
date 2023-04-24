@@ -26,10 +26,9 @@ public class Dashboard extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dashboard);
 
-        // Set the color for the navigation bar
         getWindow().setNavigationBarColor(getColor(R.color.orange_red));
 
-        // Setting up action bar
+        //Setting up action bar
         this.getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
         getSupportActionBar().setDisplayShowCustomEnabled(true);
         getSupportActionBar().setCustomView(R.layout.custom_action_bar_dashboard);
@@ -37,11 +36,10 @@ public class Dashboard extends AppCompatActivity {
         getSupportActionBar().setElevation(0);
 
 
-        // Set up ViewPager
+        //Calling the ViewPager
         ViewPager2 viewPager = findViewById(R.id.view_pager);
         viewPager.setAdapter(new ViewPagerAdapter(this));
-
-        // Set up Tab Layout
+        //Tab Layout Arrangement
         TabLayout tabLayout = (TabLayout)findViewById(R.id.tab_layout);
         new TabLayoutMediator(tabLayout, viewPager,
                 new TabLayoutMediator.TabConfigurationStrategy() {
@@ -59,13 +57,13 @@ public class Dashboard extends AppCompatActivity {
                 }).attach();
 
 
-        // Initialize and assign variable, Set up Bottom Navigation View
+        // Initialize and assign variable
         NavigationBarView bottomNavigationView=findViewById(R.id.bottom_navigation);
 
-        // Set Home selected by default
+        // Set Home selected
         bottomNavigationView.setSelectedItemId(R.id.dashboard);
 
-        // Handle Bottom Navigation View item clicks
+
         bottomNavigationView.setOnItemSelectedListener( new NavigationBarView.OnItemSelectedListener() {
 
             @Override
@@ -73,14 +71,12 @@ public class Dashboard extends AppCompatActivity {
                 switch(item.getItemId())
                 {
                     case R.id.map:
-                        // Start the MapActivity and disable transition animation
                         startActivity(new Intent(getApplicationContext(), MapActivity.class));
                         overridePendingTransition(0,0);
                         return true;
                     case R.id.dashboard:
                         return true;
                     case R.id.user:
-                        // Start the User Activity and disable transaction animation
                         startActivity(new Intent(getApplicationContext(),User.class));
                         overridePendingTransition(0,0);
                         return true;
@@ -89,7 +85,6 @@ public class Dashboard extends AppCompatActivity {
             }
         });
 
-        // Set up "Add Log" button in Action bar
         ImageView addLog = getSupportActionBar().getCustomView().findViewById(R.id.add_log);
         addLog.setOnClickListener(new View.OnClickListener() {
             @Override
