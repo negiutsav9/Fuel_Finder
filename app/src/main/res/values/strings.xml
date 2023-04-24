@@ -31,7 +31,7 @@
     <string name="time">Time</string>
     <string name="_12_00_am">12:00 AM</string>
     <string name="total_cost">Total Cost</string>
-    <string name="refill_capacity">Refill Capacity</string>
+    <string name="refill_capacity">Amount</string>
     <string name="fuel_type">Fuel Type</string>
     <string name="odometer">Odometer</string>
     <string name="fuel_economy">Fuel Economy</string>
