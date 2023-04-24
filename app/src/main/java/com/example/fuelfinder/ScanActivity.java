@@ -4,10 +4,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -15,9 +13,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -34,13 +30,14 @@ import java.lang.reflect.Array;
 // reference for ML: https://www.youtube.com/watch?v=-7pM5ficYoc
 
 public class ScanActivity extends AppCompatActivity {
+
     ImageView pumpIV;
-    String pumpStr = "";
+    String pumpStr = "-1";
 
     ImageView odoIV;
-    String odoStr = "";
+    String odoStr = "-1";
     ImageView mpgIV;
-    String mpgStr = "";
+    String mpgStr = "-1";
 
     enum ImageType {
         PUMP,
@@ -140,41 +137,15 @@ public class ScanActivity extends AppCompatActivity {
                 if(imgType == ImageType.PUMP) {
                     s = processMLText(s);
                     pumpStr = s;
-                    // change button color to green--value was read in
-                    if(!pumpStr.equals("\n")) { // should be int + "\n" + int
-                        Button gasButton = findViewById(R.id.gasPumpButton);
-                        gasButton.setBackgroundTintList(ContextCompat.getColorStateList(getApplicationContext(), R.color.green));
-                        gasButton.setEnabled(false);
-                    }
                 }
 
                 else if(imgType == ImageType.ODO) {
                     s = processMLText(s);
                     odoStr = s;
-                    boolean readSuccess = true;
-                    Log.d("scan:", "odo:" + s);
-                    try {Integer.parseInt(odoStr);}
-                    catch (NumberFormatException nfe) {readSuccess = false;}
-                    if(readSuccess) { // check if it's an int
-                        // change button color to green--value was read in
-                        Button odoButton = findViewById(R.id.odometerButton);
-                        odoButton.setBackgroundTintList(ContextCompat.getColorStateList(getApplicationContext(), R.color.green));
-                        odoButton.setEnabled(false);
-                    }
                 }
                 else if(imgType == ImageType.MPG) {
                     s = processMLText(s);
                     mpgStr = s;
-                    Log.d("scan:", "mpg:" + s);
-                    boolean readSuccess = true;
-                    try {Double.parseDouble(mpgStr);}
-                    catch (NumberFormatException nfe) {readSuccess = false;}
-                    if(readSuccess) { // check if it's a double
-                        // change button color to green--value was read in
-                        Button mpgButton = findViewById(R.id.mpgButton);
-                        mpgButton.setBackgroundTintList(ContextCompat.getColorStateList(getApplicationContext(), R.color.green));
-                        mpgButton.setEnabled(false);
-                    }
                 }
                 else throw new RuntimeException("unrecognized text type");
                 imgType = ImageType.UNINIT;
@@ -199,13 +170,13 @@ public class ScanActivity extends AppCompatActivity {
         catch(NumberFormatException nfe) {}
         double fuel_refill = -1;
         try {
-            fuel_refill = Double.valueOf(pumpStr.split("\n")[1]);
+            total_cost = Double.valueOf(pumpStr.split("\n")[1]);
         }
         catch(NumberFormatException nfe) {}
         catch(ArrayIndexOutOfBoundsException ibe) {}
         int odometer = -1;
         try {
-            odometer = Integer.valueOf(odoStr);;
+            odometer = Integer.valueOf(odoStr);
         }
         catch(NumberFormatException nfe) {}
         double fuel_eco = -1;
@@ -217,84 +188,87 @@ public class ScanActivity extends AppCompatActivity {
         Intent manualIntent = new Intent(getApplicationContext(), ManualEntryActivity.class);
         manualIntent.putExtra("CostScan", total_cost);
         manualIntent.putExtra("CapacityScan", fuel_refill);
-        Log.d("scan:", "transferringOdo:" + odometer);
         manualIntent.putExtra("OdometerScan", odometer);
         manualIntent.putExtra("EconomyScan", fuel_eco);
         startActivity(manualIntent);
     }
 
     private String processMLText(String text) {
-        String procStr = text.trim();
-        procStr = procStr.replace('I', '1');
-        procStr = procStr.replace('l', '1');
-        procStr = procStr.replace('o', '0');
-        procStr = procStr.replace('O', '0');
+        String procStr = text.replace('l', '1').trim();
+        procStr = text.replace('I', '1');
+        procStr = text.replace('l', '1');
+        procStr = text.replace('o', '0');
+        procStr = text.replace('O', '0');
         procStr = removeLinesWithNoNumbers(procStr);
         procStr = procStr.replaceAll("[^0-9\n]", "");
         procStr = procStr.replace(".", ""); // decimal points will be manually added
-        boolean readPump = true;
         if(imgType == ImageType.PUMP) { // expecting cost (###.##), gallons (##.###)
-            String costStr = "";
-            String galStr = "";
+            /*
             if(procStr.split("\n").length != 2) {
-                // failed to read both gas amount and cost
-                readPump = false;
+                return "too many lines: #" + procStr.split("\n").length + ", " + procStr;
+                //FIXME: change to return "Failed to read pump"?
             }
-            if(readPump) {
-                costStr = procStr.substring(0, procStr.indexOf('\n'));
-                costStr = costStr.replace("\n", "");
-                if(costStr.length() > 3)
-                    costStr = costStr.substring(0, costStr.length() - 2) +
-                        '.' + costStr.substring(costStr.length() - 3 + 1);
-                try {
-                    double cost = Double.valueOf(costStr);
-                } catch (NumberFormatException nfe) {
-                    //failed to read odometer
-                }
-                if(galStr.length() > 3) { // if long enough, insert decimal
-                galStr = procStr.substring(procStr.indexOf('\n') + 1);
-                galStr = galStr.replace("\n", "");
-                galStr = galStr.substring(0, galStr.length() - 3) +
-                        "." + galStr.substring(galStr.length() - 4 + 1); }
-                try {
-                    double gals = Double.valueOf(galStr);
-                } catch (NumberFormatException nfe) {
-                    //failed to read odometer
-                }
+             */
+            String costStr = procStr.substring(0, procStr.indexOf('\n'));
+            costStr = costStr.replace("\n", "");
+            costStr = costStr.substring(0, costStr.length() - 2) +
+                    '.' + costStr.substring(costStr.length() - 3 + 1);
+            try {
+                double cost = Double.valueOf(costStr);
+            }
+            catch(NumberFormatException nfe) {
+                //costStr = "Non-numeric cost: " + costStr;
+                //FIXME: change to return "Failed to read odometer"?
+            }
+
+            String galStr = procStr.substring(procStr.indexOf('\n') + 1);
+            galStr = galStr.replace("\n", "");
+            galStr = galStr.substring(0, galStr.length() - 3) +
+                    "." + galStr.substring(galStr.length() - 4 + 1);
+            try {
+                double gals = Double.valueOf(galStr);
+            }
+            catch(NumberFormatException nfe) {
+                //costStr = "Non-numeric gals: " + galStr;
+                //FIXME: change to return "Failed to read odometer"?
             }
             return costStr + "\n" + galStr;
         }
 
         else if(imgType == ImageType.ODO) { // expecting odometer to be (#####)
             if(procStr.split("\n").length != 1) {
-                //failed to read odometer
+                //return "too many lines: #" + procStr.split("\n").length + ", " + procStr;
+                //FIXME: change to return "Failed to read odometer"?
             }
             procStr = procStr.trim();
             try {
                 double odo = Double.valueOf(procStr);
             }
             catch(NumberFormatException nfe) {
-                //failed to read odometer
+                //procStr = "Non-numeric odometer: " + procStr;
+                //FIXME: change to return "Failed to read odometer"?
             }
         }
 
         else { // imgType == ImageType.MPG, expecting MPG to be (##.#)
             if(procStr.split("\n").length != 1) {
-                //failed to read miles per gallon
+                //return "too many lines: #" + procStr.split("\n").length + ", " + procStr;
+                //FIXME: change to return "Failed to read miles per gallon"?
             }
             procStr = procStr.trim();
-            if(procStr.length() > 1) // insert decimal
-                procStr = procStr.substring(0, procStr.length() - 1) +
+            procStr = procStr.substring(0, procStr.length() - 1) +
                     '.' + procStr.substring(procStr.length() - 2 + 1);
             try {
                 double mpg = Double.valueOf(procStr);
             }
             catch(NumberFormatException nfe) {
-                //failed to read miles per gallon
+                //procStr = "Non-numeric MPG: " + procStr;
+                //FIXME: change to return "Failed to read miles per gallon"?
             }
         }
 
         return procStr;
+        // return "Orig|>" + text + "\nNew|>" + procStr;
     }
     public static String removeLinesWithNoNumbers(String str) {
         String newStr = "";

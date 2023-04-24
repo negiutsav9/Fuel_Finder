@@ -2,7 +2,7 @@ package com.example.fuelfinder;
 
 public class PriceDataModel {
 
-    private String id;
+    private String id; //place id here
     private String date;
     private String time;
     private double estimated_rate;

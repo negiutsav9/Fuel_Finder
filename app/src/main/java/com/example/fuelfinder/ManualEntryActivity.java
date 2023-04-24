@@ -19,9 +19,13 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.TimePicker;
 
 import com.google.android.gms.common.api.Status;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.net.FetchPlaceRequest;
@@ -31,6 +35,7 @@ import com.google.android.libraries.places.widget.listener.PlaceSelectionListene
 
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Formatter;
 import java.util.List;
 import java.util.Locale;
 
@@ -44,8 +49,7 @@ public class ManualEntryActivity extends AppCompatActivity {
     int hours, minutes;
     String time;
     String placeID = null;
-    double total_cost, fuel_refill, fuel_eco;
-    int odometer;
+    double total_cost, fuel_refill, odometer, fuel_eco;
     String fuel_type;
 
 
@@ -166,32 +170,32 @@ public class ManualEntryActivity extends AppCompatActivity {
             cost_edit.setText(total_cost+"");
         } else if (manualEntryFetch.getDoubleExtra("CostScan", -10) != -10){
             total_cost = manualEntryFetch.getDoubleExtra("CostScan", 0);
-            if(total_cost > 0) cost_edit.setText(total_cost + "");
+            cost_edit.setText(total_cost+"");
         }
         if (manualEntryFetch.getDoubleExtra("CapacityEdit", -10) != -10) {
             fuel_refill = manualEntryFetch.getDoubleExtra("CapacityEdit", 0);
             fuel_refill_edit.setText(fuel_refill+"");
         } else if (manualEntryFetch.getDoubleExtra("CapacityScan", -10) != -10){
             fuel_refill = manualEntryFetch.getDoubleExtra("CapacityScan",0);
-            if(fuel_refill > 0) fuel_refill_edit.setText(fuel_refill+"");
+            fuel_refill_edit.setText(fuel_refill+"");
         }
         if (manualEntryFetch.getStringExtra("TypeEdit") != null) {
             fuel_type = manualEntryFetch.getStringExtra("TypeEdit");
             fuel_type_edit.setText(fuel_type);
         }
         if (manualEntryFetch.getDoubleExtra("OdometerEdit", -10) != -10) {
-            odometer = manualEntryFetch.getIntExtra("OdometerEdit", 0);
+            odometer = manualEntryFetch.getDoubleExtra("OdometerEdit", 0);
             odometer_edit.setText(odometer+"");
-        } else if (manualEntryFetch.getIntExtra("OdometerScan",-10) != -10){
-            odometer = manualEntryFetch.getIntExtra("OdometerScan",0);
-            if(odometer > 0) odometer_edit.setText(odometer+"");
+        } else if (manualEntryFetch.getDoubleExtra("OdometerScan",-10) != -10){
+            odometer = manualEntryFetch.getDoubleExtra("OdometerScan",0);
+            odometer_edit.setText(odometer+"");
         }
         if (manualEntryFetch.getDoubleExtra("EconomyEdit",-10) != -10) {
             fuel_eco = manualEntryFetch.getDoubleExtra("EconomyEdit", 0);
             fuel_eco_edit.setText(fuel_eco+"");
         } else if (manualEntryFetch.getDoubleExtra("EconomyScan",-10) != -10){
             fuel_eco = manualEntryFetch.getDoubleExtra("EconomyScan", 0);
-            if(fuel_eco > 0) fuel_eco_edit.setText(fuel_eco+"");
+            fuel_eco_edit.setText(fuel_eco+"");
         }
 
         //On Clicking Review
@@ -211,7 +215,7 @@ public class ManualEntryActivity extends AppCompatActivity {
             }
             fuel_type = fuel_type_edit.getText().toString().trim();
             if(!odometer_edit.getText().toString().trim().equals("")){
-                odometer = Integer.parseInt(odometer_edit.getText().toString().trim());
+                odometer = Double.parseDouble(odometer_edit.getText().toString().trim());
             }else{
                 odometer = 0;
             }
