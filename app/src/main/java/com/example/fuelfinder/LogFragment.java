@@ -272,6 +272,7 @@ public class LogFragment extends Fragment{
             }
 
             if(holder instanceof MenuViewHolder){
+                // Set the date, time, cost, refill amount, fuel type, odometer reading, and fuel economy in the MenuViewHolder
                 ((MenuViewHolder) holder).getDateTV().post(() -> {
                     ((MenuViewHolder) holder).getDateTV().setText(log.getDate());
                 });
@@ -294,6 +295,7 @@ public class LogFragment extends Fragment{
                     ((MenuViewHolder) holder).getFuelEcoTV().setText(log.getMiles_per_gallon() + " mpg");
                 });
 
+                // Fetch the place assoociated with the log's place ID and update the atomic referecnes for latitude, longitude, and fuel station name
                 if(log.getPlaceID() != null){
                     final List<Place.Field> placeFields = Arrays.asList(Place.Field.NAME, Place.Field.LAT_LNG);
                     final FetchPlaceRequest request = FetchPlaceRequest.newInstance(log.getPlaceID(), placeFields);
@@ -309,6 +311,7 @@ public class LogFragment extends Fragment{
                     ((MenuViewHolder) holder).getFuelStationTV().setText("");
                 }
 
+                // Set an OnClickListener for the "View Map" option in the MenuViewHolder that opens Google Maps with the fuel station's location
                 if(log.getPlaceID() != null){
                     ((MenuViewHolder) holder).getViewMapOption().setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -328,16 +331,19 @@ public class LogFragment extends Fragment{
                 ((MenuViewHolder) holder).getEditOption().setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
+                        // Create an intent to launch ManualEntryActivity for editing the log
                         Intent editIntent = new Intent(getContext(), ManualEntryActivity.class);
-                        editIntent.putExtra("DocID", log.getId());
-                        editIntent.putExtra("DateEdit", log.getDate());
-                        editIntent.putExtra("TimeEdit", log.getTime());
-                        editIntent.putExtra("PlaceIDEdit", log.getPlaceID());
-                        editIntent.putExtra("CostEdit", log.getTotal_cost());
-                        editIntent.putExtra("CapacityEdit", log.getGallons_of_fuel());
-                        editIntent.putExtra("TypeEdit", log.getFuel_type());
-                        editIntent.putExtra("OdometerEdit", log.getOdometer_reading());
-                        editIntent.putExtra("EconomyEdit", log.getMiles_per_gallon());
+                        // pass the log's information as extras to the intent
+                        editIntent.putExtra("DocID", log.getId()); // the log's unique ID
+                        editIntent.putExtra("DateEdit", log.getDate()); // the date of the log entry
+                        editIntent.putExtra("TimeEdit", log.getTime()); // the time of the log entry
+                        editIntent.putExtra("PlaceIDEdit", log.getPlaceID()); // the ID of the fuel station
+                        editIntent.putExtra("CostEdit", log.getTotal_cost()); // the total cost of the fuel purchase
+                        editIntent.putExtra("CapacityEdit", log.getGallons_of_fuel()); // the amount of fuel in gallons
+                        editIntent.putExtra("TypeEdit", log.getFuel_type()); // the type of fuel
+                        editIntent.putExtra("OdometerEdit", log.getOdometer_reading()); // the recorded odometer reading
+                        editIntent.putExtra("EconomyEdit", log.getMiles_per_gallon()); // the recorded fuel economy
+                        // start the activity for editing the log
                         startActivity(editIntent);
                     }
                 });
@@ -345,8 +351,10 @@ public class LogFragment extends Fragment{
                 ((MenuViewHolder) holder).getShareOption().setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
+                        // Create an intent to share the log's information via other apps
                         Intent sendIntent = new Intent();
                         sendIntent.setAction(Intent.ACTION_SEND);
+                        // create a string with the log's information
                         String date_txt = "Date: " + log.getDate();
                         String time_txt = "Time: " + log.getTime();
                         String fs_txt = "Fuel Station: " + fuelStationName;
@@ -357,11 +365,15 @@ public class LogFragment extends Fragment{
                         String odometer_txt = "Recorded Distance: " + log.getOdometer_reading() + " miles";
                         String economy_txt = "Recorded Economy: " + log.getMiles_per_gallon() + " mpg\n";
                         String ad_txt = "To maintain fuel logs and discover fuel prices of nearby fuel station, download Fuel Finder from Play Store";
+                        // concatenate all strings into a single string with newlines
                         String intent_txt = date_txt + "\n" + time_txt + "\n" + fs_txt + "\n" + cost_txt + "\n" + capacity_txt + "\n" + rate_txt + "\n" + type_txt + "\n" + odometer_txt + "\n" + economy_txt + "\n" + ad_txt;
+                        // add the log's information as extra to the intent
                         sendIntent.putExtra(Intent.EXTRA_TEXT, intent_txt);
                         sendIntent.putExtra(Intent.EXTRA_TITLE, "Fuel Log Entry from Fuel Finder");
+                        // set the intent type to plain text
                         sendIntent.setType("text/plain");
 
+                        // Create a chooser
                         Intent shareIntent = Intent.createChooser(sendIntent, "Fuel Log Entry");
                         startActivity(shareIntent);
                     }
@@ -370,12 +382,14 @@ public class LogFragment extends Fragment{
                 ((MenuViewHolder) holder).getDeleteOption().setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
+                        // When delete button is clicked, show an alert to confirm deletion
                         AlertDialog.Builder deleteDialog = new AlertDialog.Builder(getContext());
                         deleteDialog.setTitle("Delete Log");
                         deleteDialog.setMessage("This will delete the log and its associated data.");
                         deleteDialog.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
+                                // If "Delete" button in dialog is clicked, delete the log data from Firestore and remove it from the list
                                 Toast.makeText(getContext(), "Log Deleted", Toast.LENGTH_LONG).show();
                                 firebaseFirestore.collection("User").document(firebaseAuth.getInstance().getUid())
                                         .collection("Logs").document(log.getId()).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -387,14 +401,17 @@ public class LogFragment extends Fragment{
                                         });
                             }
                         });
+                        // If "Cancel" button in dialog is clicked, simply dismiss the dialog
                         deleteDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
                                 dialogInterface.dismiss();
                             }
                         });
+                        // Create and show the alert dialog
                         AlertDialog alert = deleteDialog.create();
                         alert.show();
+                        // Set the text colors for dialog buttons
                         alert.getButton(DialogInterface.BUTTON_NEGATIVE).setTextColor(getContext().getColor(R.color.teal_200));
                         alert.getButton(DialogInterface.BUTTON_POSITIVE).setTextColor(getContext().getColor(R.color.orange_red));
                     }
@@ -403,6 +420,7 @@ public class LogFragment extends Fragment{
                 ((MenuViewHolder) holder).getContainer().setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
+                        // When the menu container is clicked, close the menu adapter
                         adapter.closeMenu();
                     }
                 });
@@ -411,10 +429,12 @@ public class LogFragment extends Fragment{
 
         @Override
         public int getItemCount() {
+            // Return the number of logs in the list
             return logsArrayList.size();
         }
 
         public void showMenu(int position){
+            // Show the menu for the specified log position
             for(int i = 0; i < logsArrayList.size(); i++){
                 logsArrayList.get(i).setShowMenu(false);
             }
@@ -423,21 +443,26 @@ public class LogFragment extends Fragment{
         }
 
         public boolean isMenuShown(){
+            // Check if any log item is showing the menu
             for(int i = 0; i < logsArrayList.size(); i++){
                 if(logsArrayList.get(i).isShowMenu()){
                     return true;
                 }
             }
+            // Return false if no log item is showing the menu
             return false;
         }
         public void closeMenu() {
+            // Close menu for all log items
             for(int i=0; i<logsArrayList.size(); i++){
                 logsArrayList.get(i).setShowMenu(false);
             }
+            // Notify the adapter that the data set has changed
             notifyDataSetChanged();
         }
 
         public class LogViewHolder extends RecyclerView.ViewHolder {
+            // Declare all view variables for a log item
             private final TextView dateTV;
             private final TextView timeTV;
             private final TextView costTV;
@@ -450,6 +475,7 @@ public class LogFragment extends Fragment{
             private final CardView container;
 
             public LogViewHolder(FragmentLogBinding binding) {
+                // Initialize all view variables for a log item
                 super(binding.getRoot());
                 dateTV = itemView.findViewById(R.id.Date);
                 timeTV = itemView.findViewById(R.id.Time);
@@ -464,33 +490,43 @@ public class LogFragment extends Fragment{
             }
 
             public CardView getContainer() {
+                // returns the container card view
                 return container;
             }
             public TextView getFuelStationTV() {
+                // returns the fuel station text view
                 return fuelStationTV;
             }
             public ImageView getFuelMapIV() {
+                // returns the fuel map image view
                 return fuelMapIV;
             }
             public TextView getDateTV() {
+                // returns the date text view
                 return dateTV;
             }
             public TextView getTimeTV() {
+                // returns the time text view
                 return timeTV;
             }
             public TextView getCostTV() {
+                // returns the cost text view
                 return costTV;
             }
             public TextView getRefillTV() {
+                // returns the refill text view
                 return refillTV;
             }
             public TextView getTypeTV() {
+                // returns the type text view
                 return typeTV;
             }
             public TextView getOdometerTV() {
+                // returns the odometer text view
                 return odometerTV;
             }
             public TextView getFuelEcoTV() {
+                // returns the fuel eco text view
                 return fuelEcoTV;
             }
         }
