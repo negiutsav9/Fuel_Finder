@@ -57,6 +57,7 @@ import com.jjoe64.graphview.series.Series;
 
 public class LogSummaryFragment extends Fragment {
     private GraphView graphView;
+    private ArrayList<Toast> toastList = new ArrayList<Toast>();
 
     private FirebaseFirestore firebaseFirestore;
     private FirebaseAuth firebaseAuth;
@@ -151,7 +152,11 @@ public class LogSummaryFragment extends Fragment {
                                 double x = xDate.getTime();
                                 double y = dataPoint.getY();
                                 SimpleDateFormat dateFormat = new SimpleDateFormat("M/d/yy");
-                                Toast.makeText(getActivity().getApplicationContext(), "Date: " + dateFormat.format(xDate) + "\nCost: " + NumberFormat.getCurrencyInstance(new Locale("en", "US")).format(y), Toast.LENGTH_LONG).show();
+                                Toast toast = Toast.makeText(getActivity().getApplicationContext(), "Date: " + dateFormat.format(xDate) + "\nCost: " + NumberFormat.getCurrencyInstance(new Locale("en", "US")).format(y), Toast.LENGTH_LONG);
+                                for(Toast myToast : toastList) myToast.cancel();
+                                toastList.clear();
+                                toastList.add(toast);
+                                toast.show();
                             }
                         });
 
