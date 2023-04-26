@@ -25,7 +25,8 @@
         android:id="@+id/graph"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/lineSeparator">
+        android:layout_below="@id/lineSeparator"
+        android:layout_marginHorizontal="15dp">
     </com.jjoe64.graphview.GraphView>
 
 

@@ -26,6 +26,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -38,6 +40,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+
 import android.util.Log;
 
 import com.jjoe64.graphview.DefaultLabelFormatter;
@@ -45,7 +49,10 @@ import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.helper.DateAsXAxisLabelFormatter;
 import com.jjoe64.graphview.helper.StaticLabelsFormatter;
 import com.jjoe64.graphview.series.DataPoint;
+import com.jjoe64.graphview.series.DataPointInterface;
 import com.jjoe64.graphview.series.LineGraphSeries;
+import com.jjoe64.graphview.series.OnDataPointTapListener;
+import com.jjoe64.graphview.series.Series;
 
 
 public class LogSummaryFragment extends Fragment {
@@ -105,55 +112,9 @@ public class LogSummaryFragment extends Fragment {
                         graphView = returnValue.findViewById(R.id.graph);
                         DataPoint[] dataPoints = new DataPoint[logDataFinal.size()];
                         Date[] dateArray = new Date[logDataFinal.size()];
-                        String[] stringDates = new String[logDataFinal.size()];
                         for (int i = 0; i < logDataFinal.size(); i++) {
                             double curCost = logDataFinal.get(i).getTotal_cost();
                             String dateString = logDataFinal.get(i).getDate();
-                            String numberOnly= dateString.replaceAll("[^0-9]", "");
-                            // FIXME: check days with 1 digit
-                            String dayString = numberOnly.substring(0, 2);
-                            String yearString = numberOnly.substring(4, 6);
-                            Log.d("stringDates", "TEST");
-                            // Handles x-axis labeling for dates
-                            if (dateString.contains("January")) {
-                                stringDates[i] = "1/" + dayString + "/" + yearString;
-                            }
-                            else if (dateString.contains("February")) {
-                                stringDates[i] = "2/" + dayString + "/" + yearString;
-                            }
-                            else if (dateString.contains("March")) {
-                                stringDates[i] = "3/" + dayString + "/" + yearString;
-                            }
-                            else if (dateString.contains("April")) {
-                                if (i == 0 || i == (logDataFinal.size() - 1)) {
-                                    stringDates[i] = "4/" + dayString + "/" + yearString;
-                                    Log.d("stringDates", stringDates[i]);
-                                }
-                            }
-                            else if (dateString.contains("May")){
-                                stringDates[i] = "5/" + dayString + "/" + yearString;
-                            }
-                            else if (dateString.contains("June")){
-                                stringDates[i] = "6/" + dayString + "/" + yearString;
-                            }
-                            else if (dateString.contains("July")){
-                                stringDates[i] = "7/" + dayString + "/" + yearString;
-                            }
-                            else if (dateString.contains("August")){
-                                stringDates[i] = "8/" + dayString + "/" + yearString;
-                            }
-                            else if (dateString.contains("September")){
-                                stringDates[i] = "9/" + dayString + "/" + yearString;
-                            }
-                            else if (dateString.contains("October")){
-                                stringDates[i] = "10/" + dayString + "/" + yearString;
-                            }
-                            else if (dateString.contains("November")){
-                                stringDates[i] = "11/" + dayString + "/" + yearString;
-                            }
-                            else {
-                                stringDates[i] = "12/" + dayString + "/" + yearString;
-                            }
                             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM d, yyyy");
                             LocalDate localDate = LocalDate.parse(dateString, formatter);
                             Date curDate = Date.from(localDate.atStartOfDay().atZone(java.time.ZoneId.systemDefault()).toInstant());
@@ -181,31 +142,27 @@ public class LogSummaryFragment extends Fragment {
                         graphView.addSeries(series);
                         series.setColor(Color.parseColor("#F44336"));
                         series.setDrawDataPoints(true);
+                        series.setThickness(10);
+                        series.setDataPointsRadius(20);
+                        series.setOnDataPointTapListener(new OnDataPointTapListener() {
+                            @Override
+                            public void onTap(Series series, DataPointInterface dataPoint) {
+                                Date xDate = new Date((long) dataPoint.getX());
+                                double x = xDate.getTime();
+                                double y = dataPoint.getY();
+                                SimpleDateFormat dateFormat = new SimpleDateFormat("M/d/yy");
+                                Toast.makeText(getActivity().getApplicationContext(), "Date: " + dateFormat.format(xDate) + "\nCost: " + NumberFormat.getCurrencyInstance(new Locale("en", "US")).format(y), Toast.LENGTH_LONG).show();
+                            }
+                        });
 
-                        // bounds the y-axis to max and min cost
-//                        graphView.getViewport().setMinY(logDataFinal.get(0).getTotal_cost());
-//                        graphView.getViewport().setMaxY(logDataFinal.get(logDataFinal.size() - 1).getTotal_cost());
-//                        graphView.getViewport().setYAxisBoundsManual(true);
-
-//                        graphView.getViewport().setScalable(true);  // activate horizontal zooming and scrolling
-//                        graphView.getViewport().setScrollable(true);  // activate horizontal scrolling
-//                        graphView.getViewport().setScalableY(true);  // activate horizontal and vertical zooming and scrolling
-//                        graphView.getViewport().setScrollableY(true);  // activate vertical scrolling
 
                         // StaticLabelsFormatter needs at least 2 labels for x-axis - this handles that case
                         if (logDataFinal.size() == 1) {
                             Toast.makeText(getActivity().getApplicationContext(), "Can not plot data with 1 log. Must have at least 2 logs", Toast.LENGTH_LONG).show();
                         }
-                        else {
-                            // use static labels for horizontal labels
-//                            StaticLabelsFormatter staticLabelsFormatter = new StaticLabelsFormatter(graphView);
-//                            staticLabelsFormatter.setHorizontalLabels(stringDates);
-//                            graphView.getGridLabelRenderer().setLabelFormatter(staticLabelsFormatter);
 
-                        }
                         // hide the x-axis
                         graphView.getGridLabelRenderer().setHorizontalLabelsVisible(false);
-
                         graphView.getViewport().setScrollable(true);
                         graphView.getViewport().setScalable(true);  // activate horizontal zooming and scrolling
 
