@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="logDropdownOptions2">
+        <item>Last Month</item>
+        <item>Last Year</item>
+        <item>All Time</item>
+    </string-array>
+</resources>
