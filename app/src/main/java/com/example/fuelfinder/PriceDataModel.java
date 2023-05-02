@@ -1,8 +1,10 @@
 package com.example.fuelfinder;
 
+import java.util.HashMap;
+
 public class PriceDataModel {
 
-    private String id;
+    private String id; //place id here
     private String date;
     private String time;
     private double estimated_rate;
@@ -66,5 +68,16 @@ public class PriceDataModel {
 
     public void setFuel_type(String fuel_type) {
         this.fuel_type = fuel_type;
+    }
+
+    public HashMap<String, Object> convertToHashMap(){
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("id", getId());
+        map.put("date", getDate());
+        map.put("time", getTime());
+        map.put("estimated_rate", getEstimated_rate());
+        map.put("fuel_type",getFuel_type());
+        map.put("placeID",getPlaceID());
+        return map;
     }
 }

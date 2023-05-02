@@ -13,9 +13,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         >
+
         <fragment
-            xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:tools="http://schemas.android.com/tools"
             android:id="@+id/map"
             android:name="com.google.android.gms.maps.SupportMapFragment"
             android:layout_width="match_parent"
@@ -27,7 +26,7 @@
     <androidx.cardview.widget.CardView
         android:id="@+id/markerDetail"
         android:layout_width="match_parent"
-        android:layout_height="145dp"
+        android:layout_height="225dp"
         android:layout_above="@+id/bottom_navigation"
         android:layout_marginBottom="10dp"
         app:cardCornerRadius="40dp"
@@ -38,8 +37,8 @@
 
         <RelativeLayout
             android:id="@+id/layout"
-            android:layout_width="300dp"
-            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:layout_marginHorizontal="10dp"
             android:layout_marginVertical="4dp"
             android:orientation="vertical"
@@ -57,14 +56,15 @@
 
 
             <TableLayout
+                android:id="@+id/table"
                 android:layout_width="300dp"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/Name"
                 android:layout_marginTop="5dp"
-                android:layout_alignParentBottom="true"
                 android:stretchColumns="0,1">
 
                 <TableRow>
+
                     <TextView
                         android:id="@+id/address"
                         android:layout_width="0dp"
@@ -94,7 +94,7 @@
                         android:id="@+id/price_header"
                         android:layout_width="0dp"
                         android:layout_weight="1"
-                        android:text="Price Level" />
+                        android:text="Price Level By Google" />
 
                     <TextView
                         android:id="@+id/price_lvl"
@@ -104,7 +104,6 @@
                 </TableRow>
 
                 <TableRow>
-
                     <TextView
                         android:id="@+id/RatingHeader"
                         android:layout_width="0dp"
@@ -115,13 +114,155 @@
                     <TextView
                         android:id="@+id/rating"
                         android:layout_width="0dp"
-                        android:layout_weight="1"
                         android:layout_height="wrap_content"
-                        android:text="Unavailable"
-                        />
+                        android:layout_weight="1"
+                        android:text="Unavailable" />
+                </TableRow>
+            </TableLayout>
+
+            <TextView
+                android:id="@+id/PriceTableHeader"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/table"
+                android:layout_marginVertical="10dp"
+                android:textColor="@color/orange_red"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:text="Fuel Prices from Users"/>
+
+            <TableLayout
+                android:id="@+id/price_table"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/PriceTableHeader"
+                android:stretchColumns="0,1,2,3,4,5">
+
+                <TableRow>
+                    <TextView
+                        android:id="@+id/priceHeader_85"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:text="85" />
+                    <TextView
+                        android:id="@+id/priceHeader_86"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:text="86" />
+                    <TextView
+                        android:id="@+id/priceHeader_87"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:text="87" />
+                    <TextView
+                        android:id="@+id/priceHeader_88"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:text="88" />
+                    <TextView
+                        android:id="@+id/priceHeader_89"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:text="89" />
+                    <TextView
+                        android:id="@+id/priceHeader_90"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:text="90" />
+                    <TextView
+                        android:id="@+id/priceHeader_91"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:text="91" />
+                    <TextView
+                        android:id="@+id/priceHeader_92"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:text="92" />
+                    <TextView
+                        android:id="@+id/priceHeader_93"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:text="93" />
+                    <TextView
+                        android:id="@+id/dieselHeader"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:text="D" />
+                    <TextView
+                        android:id="@+id/flexFuelHeader"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:text="F" />
+                </TableRow>
+                <TableRow>
+                    <TextView
+                        android:id="@+id/price_85"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:text="N/A" />
+                    <TextView
+                        android:id="@+id/price_86"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:text="N/A" />
+                    <TextView
+                        android:id="@+id/price_87"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:text="N/A" />
+                    <TextView
+                        android:id="@+id/price_88"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:text="N/A" />
+                    <TextView
+                        android:id="@+id/price_89"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:text="N/A" />
+                    <TextView
+                        android:id="@+id/price_90"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:text="N/A" />
+                    <TextView
+                        android:id="@+id/price_91"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:text="N/A" />
+                    <TextView
+                        android:id="@+id/price_92"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:text="N/A" />
+                    <TextView
+                        android:id="@+id/price_93"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:text="N/A" />
+                    <TextView
+                        android:id="@+id/price_diesel"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:text="N/A" />
+                    <TextView
+                        android:id="@+id/price_flexFuel"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:text="N/A" />
                 </TableRow>
             </TableLayout>
         </RelativeLayout>
+
+        <ImageView
+            android:id="@+id/route"
+            android:layout_width="48dp"
+            android:layout_height="50dp"
+            android:layout_marginVertical="45dp"
+            android:layout_marginStart="300dp"
+            android:src="@drawable/baseline_directions_24"
+            app:tint="@color/orange_red" />
 
     </androidx.cardview.widget.CardView>
 

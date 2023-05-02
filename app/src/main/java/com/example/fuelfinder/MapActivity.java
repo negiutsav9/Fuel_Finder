@@ -1,13 +1,6 @@
 package com.example.fuelfinder;
 
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.cardview.widget.CardView;
-import androidx.core.app.ActivityCompat;
-
-
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
@@ -18,14 +11,22 @@ import android.graphics.drawable.ColorDrawable;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
+import androidx.core.app.ActivityCompat;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -36,14 +37,16 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.net.FetchPlaceRequest;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.material.navigation.NavigationBarView;
-import com.squareup.picasso.Picasso;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 
-import org.checkerframework.checker.units.qual.A;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -58,7 +61,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -66,21 +68,25 @@ import java.util.concurrent.Executors;
 
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMapClickListener {
 
-    private GoogleMap map;
-
     private PlacesClient placesClient;
-
-    private HashMap<String, HashMap<String, Object>> nearbyPlaces = new HashMap<>();
-
-    private ArrayList<String> nearby_placeID = new ArrayList<>();
+    private final HashMap<String, HashMap<String, Object>> nearbyPlaces = new HashMap<>();
     private ArrayList<Marker> nearby_markers = new ArrayList<>();
-
+    private HashMap<String, HashMap<String, ArrayList<Double>>> fuelPrices = new HashMap<>();
     private CardView markerDetail;
     private TextView markerName;
     private TextView markerAddress;
     private TextView markerPhone;
     private TextView markerPrice;
     private TextView markerRating;
+    private TextView priceHeader;
+    private ImageView route_button;
+    private String fuelStationName;
+    private String longitude;
+    private String latitude;
+    private FirebaseFirestore firebaseFirestore;
+    private TextView price_85, price_86, price_87, price_88, price_89, price_90, price_91, price_92;
+    private TextView price_93, price_diesel, price_flexFuel;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,23 +106,45 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#F44336")));
         getSupportActionBar().setElevation(0);
 
+        //firebase instance
+        firebaseFirestore = FirebaseFirestore.getInstance();
+
         markerDetail = findViewById(R.id.markerDetail);
         markerName = findViewById(R.id.Name);
         markerAddress = findViewById(R.id.address);
         markerPhone = findViewById(R.id.phone_number);
+        priceHeader = findViewById(R.id.price_header);
         markerPrice = findViewById(R.id.price_lvl);
         markerRating = findViewById(R.id.rating);
+        route_button = findViewById(R.id.route);
+        price_85 = findViewById(R.id.price_85);
+        price_86 = findViewById(R.id.price_86);
+        price_87 = findViewById(R.id.price_87);
+        price_88 = findViewById(R.id.price_88);
+        price_89 = findViewById(R.id.price_89);
+        price_90 = findViewById(R.id.price_90);
+        price_91 = findViewById(R.id.price_91);
+        price_92 = findViewById(R.id.price_92);
+        price_93 = findViewById(R.id.price_93);
+        price_diesel = findViewById(R.id.price_diesel);
+        price_flexFuel = findViewById(R.id.price_flexFuel);
 
+        route_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String mapUri = "geo:0,0?q="+ fuelStationName.replace(" ", "+") + "@" + latitude +"," + longitude;
+                Uri gmmIntentUri = Uri.parse(mapUri);
+                Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+                mapIntent.setPackage("com.google.android.apps.maps");
+                startActivity(mapIntent);
+            }
+        });
+
+        //Navigation Bar
         getWindow().setNavigationBarColor(getColor(R.color.orange_red));
-
-        // Initialize and assign variable
         NavigationBarView bottomNavigationView = findViewById(R.id.bottom_navigation);
-
-        // Set Home selected
         bottomNavigationView.setSelectedItemId(R.id.map);
-
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
-
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()) {
@@ -237,9 +265,56 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 } catch (JSONException e) {
                     throw new RuntimeException(e);
                 }
+
+                //getting data from firebase
+                firebaseFirestore.collection("Prices").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                        List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
+                        if(!queryDocumentSnapshots.isEmpty()){
+                            for(DocumentSnapshot d: list){
+                                PriceDataModel price = d.toObject(PriceDataModel.class);
+                                if(!fuelPrices.containsKey(price.getPlaceID())){
+                                    fuelPrices.put(price.getPlaceID(), new HashMap<String, ArrayList<Double>>());
+
+                                }
+                                Log.d("Place ID detected", fuelPrices.keySet().toString());
+                                if(!fuelPrices.get(price.getPlaceID()).containsKey(price.getFuel_type())){
+                                    fuelPrices.get(price.getPlaceID()).put(price.getFuel_type(), new ArrayList<Double>());
+                                }
+                                Log.d("Fuel Type Detected", fuelPrices.get(price.getPlaceID()).keySet().toString());
+                                fuelPrices.get(price.getPlaceID()).get(price.getFuel_type()).add(price.getEstimated_rate());
+                                //removing outlier by calculating the z-index of each arraylist and removing the values having z-index greater than 2
+                                double mean;
+                                double std;
+                                double total_sum = 0;
+                                //getting the mean of the ArrayList
+                                for(double p : fuelPrices.get(price.getPlaceID()).get(price.getFuel_type())){
+                                    total_sum += p;
+                                }
+                                mean = total_sum/fuelPrices.get(price.getPlaceID()).get(price.getFuel_type()).size();
+                                //getting the standard deviation of the ArrayList
+                                double sum = 0;
+                                for(double q : fuelPrices.get(price.getPlaceID()).get(price.getFuel_type())){
+                                    sum += Math.pow((q - mean), 2);
+                                }
+                                std = Math.sqrt(sum/(fuelPrices.get(price.getPlaceID()).get(price.getFuel_type()).size() - 1));
+                                //calculate z-index and remove the data with z-index greater than 2
+                                for(double r : fuelPrices.get(price.getPlaceID()).get(price.getFuel_type())){
+                                    double z_score = (r - mean)/std;
+                                    if(Math.abs(Math.round(z_score)) > 5){
+                                        fuelPrices.get(price.getPlaceID()).get(price.getFuel_type()).remove(r);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+
+
                 handler.post(() -> {
                     for(Map.Entry<String, HashMap<String, Object>> mapElement : nearbyPlaces.entrySet()){
-                        final List<Place.Field> placeFields = Arrays.asList(Place.Field.NAME, Place.Field.LAT_LNG, Place.Field.ADDRESS, Place.Field.PHOTO_METADATAS, Place.Field.PHONE_NUMBER, Place.Field.OPENING_HOURS, Place.Field.WEBSITE_URI, Place.Field.PRICE_LEVEL, Place.Field.RATING);
+                        final List<Place.Field> placeFields = Arrays.asList(Place.Field.NAME, Place.Field.LAT_LNG, Place.Field.ADDRESS, Place.Field.PHONE_NUMBER, Place.Field.PRICE_LEVEL, Place.Field.RATING);
                         final FetchPlaceRequest request = FetchPlaceRequest.newInstance(mapElement.getKey(), placeFields);
                         placesClient.fetchPlace(request).addOnSuccessListener((response) -> {
                            Place place = response.getPlace();
@@ -248,11 +323,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                            nearby_markers.add(map.addMarker(new MarkerOptions().position(pointer).snippet(mapElement.getKey())));
                             //adding the nearby fuel station data to hashmap
                             mapElement.getValue().put("Name", place.getName());
-                            //mapElement.getValue().put("Latitude", place.getLatLng().latitude);
-                            //mapElement.getValue().put("Longitude", place.getLatLng().longitude);
+                            mapElement.getValue().put("Latitude", place.getLatLng().latitude);
+                            mapElement.getValue().put("Longitude", place.getLatLng().longitude);
                             mapElement.getValue().put("Address", place.getAddress());
                             mapElement.getValue().put("Phone", place.getPhoneNumber());
-                            //mapElement.getValue().put("Images_MD", place.getPhotoMetadatas());
                             mapElement.getValue().put("Price", place.getPriceLevel());
                             mapElement.getValue().put("Rating", place.getRating());
                         });
@@ -268,9 +342,16 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                                     .tilt(40)                   // Sets the tilt of the camera to 40 degrees
                                     .build();                   // Creates a CameraPosition from the builder
                             map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+
+                            //getting price from the FireStore result
+                            HashMap<String, ArrayList<Double>> selectedPrices = fuelPrices.get(marker.getSnippet());
+
                             //pop up the marker detail
                             markerDetail.setVisibility(View.VISIBLE);
                             HashMap<String, Object> details = nearbyPlaces.get(marker.getSnippet());
+                            fuelStationName =  details.get("Name").toString();
+                            latitude = details.get("Latitude").toString();
+                            longitude = details.get("Longitude").toString();
                             markerName.setText(details.get("Name").toString());
                             markerAddress.setText(details.get("Address").toString());
                             if(details.get("Phone") != null){
@@ -281,6 +362,64 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                             }
                             if(details.get("Rating") != null){
                                 markerRating.setText(details.get("Rating").toString());
+                            }
+                            if(selectedPrices != null){
+                                if(selectedPrices.get("85") != null){
+                                    Log.d("85 Prices", String.format("%.2f", average(selectedPrices.get("85"))));
+                                    if(average(selectedPrices.get("85")) >= 0){
+                                        price_85.setText(String.format("%.2f", average(selectedPrices.get("85"))));
+                                    }
+                                }
+                                if(selectedPrices.get("86") != null){
+                                    if(average(selectedPrices.get("86")) >= 0){
+                                        price_86.setText(String.format("%.2f", average(selectedPrices.get("86"))));
+                                    }
+                                }
+                                if(selectedPrices.get("87") != null){
+                                    if(average(selectedPrices.get("87")) >= 0){
+                                        price_87.setText(String.format("%.2f", average(selectedPrices.get("87"))));
+                                    }
+                                }
+                                if(selectedPrices.get("88") != null){
+                                    if(average(selectedPrices.get("88")) >= 0){
+                                        price_88.setText(String.format("%.2f", average(selectedPrices.get("88"))));
+                                    }
+                                }
+                                if(selectedPrices.get("89") != null){
+                                    if(average(selectedPrices.get("89")) >= 0){
+                                        price_89.setText(String.format("%.2f", average(selectedPrices.get("89"))));
+                                    }
+                                }
+                                if(selectedPrices.get("90") != null){
+                                    if(average(selectedPrices.get("90")) >= 0){
+                                        price_90.setText(String.format("%.2f", average(selectedPrices.get("90"))));
+                                    }
+                                }
+                                if(selectedPrices.get("91") != null){
+                                    if(average(selectedPrices.get("91")) >= 0){
+                                        price_91.setText(String.format("%.2f", average(selectedPrices.get("91"))));
+                                    }
+                                }
+                                if(selectedPrices.get("92") != null){
+                                    if(average(selectedPrices.get("92")) >= 0){
+                                        price_92.setText(String.format("%.2f", average(selectedPrices.get("92"))));
+                                    }
+                                }
+                                if(selectedPrices.get("93") != null){
+                                    if(average(selectedPrices.get("93")) >= 0){
+                                        price_93.setText(String.format("%.2f", average(selectedPrices.get("93"))));
+                                    }
+                                }
+                                if(selectedPrices.get("Diesel") != null){
+                                    if(average(selectedPrices.get("Diesel")) >= 0){
+                                        price_diesel.setText(String.format("%.2f", average(selectedPrices.get("Diesel"))));
+                                    }
+                                }
+                                if(selectedPrices.get("Flex Fuel") != null){
+                                    if(average(selectedPrices.get("Flex Fuel")) >= 0){
+                                        price_flexFuel.setText(String.format("%.2f", average(selectedPrices.get("Flex Fuel"))));
+                                    }
+                                }
                             }
                             return true;
                         }
@@ -293,5 +432,16 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     @Override
     public void onMapClick(LatLng latLng) {
         markerDetail.setVisibility(View.GONE);
+    }
+
+    public double average(ArrayList<Double> alist){
+        if(alist == null){
+            return 0;
+        }
+        double sum = 0;
+        for(double a : alist){
+            sum += a;
+        }
+        return sum/alist.size();
     }
 }

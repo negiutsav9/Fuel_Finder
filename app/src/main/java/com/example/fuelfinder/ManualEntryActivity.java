@@ -14,11 +14,14 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
@@ -51,6 +54,7 @@ public class ManualEntryActivity extends AppCompatActivity {
     String placeID = null;
     double total_cost, fuel_refill, odometer, fuel_eco;
     String fuel_type;
+    Spinner fuelType_spinner;
 
 
     @SuppressLint("ResourceType")
@@ -85,7 +89,6 @@ public class ManualEntryActivity extends AppCompatActivity {
         Button review = findViewById(R.id.review_button);
         EditText cost_edit = findViewById(R.id.cost);
         EditText fuel_refill_edit = findViewById(R.id.refill);
-        EditText fuel_type_edit = findViewById(R.id.type);
         EditText odometer_edit = findViewById(R.id.odometer);
         EditText fuel_eco_edit = findViewById(R.id.fuel_eco);
 
@@ -118,6 +121,24 @@ public class ManualEntryActivity extends AppCompatActivity {
             timePickerDialog.show();
             timePickerDialog.getButton(DialogInterface.BUTTON_NEGATIVE).setTextColor(getColor(R.color.teal_200));
             timePickerDialog.getButton(DialogInterface.BUTTON_POSITIVE).setTextColor(getColor(R.color.orange_red));
+        });
+
+        //Fuel Type Code
+        fuelType_spinner = (Spinner) findViewById(R.id.type);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.fuelType_array, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        fuelType_spinner.setAdapter(adapter);
+        fuelType_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                fuel_type = (String) adapterView.getItemAtPosition(i);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+                //Select nothing
+                fuel_type = "";
+            }
         });
 
 
@@ -181,7 +202,8 @@ public class ManualEntryActivity extends AppCompatActivity {
         }
         if (manualEntryFetch.getStringExtra("TypeEdit") != null) {
             fuel_type = manualEntryFetch.getStringExtra("TypeEdit");
-            fuel_type_edit.setText(fuel_type);
+            int spinner_pos = adapter.getPosition(fuel_type);
+            fuelType_spinner.setSelection(spinner_pos);
         }
         if (manualEntryFetch.getDoubleExtra("OdometerEdit", -10) != -10) {
             odometer = manualEntryFetch.getDoubleExtra("OdometerEdit", 0);
@@ -213,7 +235,7 @@ public class ManualEntryActivity extends AppCompatActivity {
             }else{
                 fuel_refill = 0;
             }
-            fuel_type = fuel_type_edit.getText().toString().trim();
+            fuel_type = fuelType_spinner.getSelectedItem().toString().trim();
             if(!odometer_edit.getText().toString().trim().equals("")){
                 odometer = Double.parseDouble(odometer_edit.getText().toString().trim());
             }else{
