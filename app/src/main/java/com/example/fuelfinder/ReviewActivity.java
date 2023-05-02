@@ -153,9 +153,11 @@ public class ReviewActivity extends AppCompatActivity implements OnMapReadyCallb
                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void unused) {
+
                                 DocumentReference price_ref = firebaseFirestore.collection("Prices").document();
                                 price_ref.set(new PriceDataModel(price_ref.getId(), date, time, (total_cost / fuel_refill), placeID, fuel_type));
                                 ref.update("timestamp", FieldValue.serverTimestamp());
+
                                 Toast.makeText(ReviewActivity.this,"Log Added", Toast.LENGTH_LONG).show();
                                 startActivity(new Intent(getApplicationContext(), Dashboard.class));
                             }
@@ -192,7 +194,6 @@ public class ReviewActivity extends AppCompatActivity implements OnMapReadyCallb
                                         });
                                     }
                                 });
-                            }
                         });
                     }
                 });

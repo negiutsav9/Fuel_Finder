@@ -6,20 +6,135 @@
     tools:context=".LogSummaryFragment">
 
     <Spinner
-        android:id="@+id/logDropdown"
+        android:id="@+id/logDropdownType"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="10dp"
         android:layout_marginVertical="10dp" />
+
+
+    <Spinner
+        android:id="@+id/logDropdownTime"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="10dp"
+        android:layout_marginVertical="10dp"
+        android:layout_below="@id/logDropdownType"/>
 
     <View
         android:id="@+id/lineSeparator"
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="#CDCDCD"
-        android:layout_below="@id/logDropdown">
+        android:layout_below="@id/logDropdownTime">
 
     </View>
 
+    <com.jjoe64.graphview.GraphView
+        android:id="@+id/GCM"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/lineSeparator"
+        android:layout_marginHorizontal="15dp">
+    </com.jjoe64.graphview.GraphView>
+
+    <com.jjoe64.graphview.GraphView
+        android:id="@+id/GCY"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/lineSeparator"
+        android:visibility="invisible">
+    </com.jjoe64.graphview.GraphView>
+
+    <com.jjoe64.graphview.GraphView
+        android:id="@+id/GCA"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/lineSeparator"
+        android:layout_marginHorizontal="15dp"
+        android:visibility="invisible"
+        >
+    </com.jjoe64.graphview.GraphView>
+
+    <com.jjoe64.graphview.GraphView
+        android:id="@+id/GGM"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/lineSeparator"
+        android:layout_marginHorizontal="15dp"
+        android:visibility="invisible">
+    </com.jjoe64.graphview.GraphView>
+
+    <com.jjoe64.graphview.GraphView
+        android:id="@+id/GGY"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/lineSeparator"
+        android:layout_marginHorizontal="15dp"
+        android:visibility="invisible">
+    </com.jjoe64.graphview.GraphView>
+
+    <com.jjoe64.graphview.GraphView
+        android:id="@+id/GGA"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/lineSeparator"
+        android:layout_marginHorizontal="15dp"
+        android:visibility="invisible">
+    </com.jjoe64.graphview.GraphView>
+
+    <com.jjoe64.graphview.GraphView
+        android:id="@+id/GOM"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/lineSeparator"
+        android:layout_marginHorizontal="15dp"
+        android:visibility="invisible">
+    </com.jjoe64.graphview.GraphView>
+
+    <com.jjoe64.graphview.GraphView
+        android:id="@+id/GOY"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/lineSeparator"
+        android:layout_marginHorizontal="15dp"
+        android:visibility="invisible">
+    </com.jjoe64.graphview.GraphView>
+
+    <com.jjoe64.graphview.GraphView
+        android:id="@+id/GOA"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/lineSeparator"
+        android:layout_marginHorizontal="15dp"
+        android:visibility="invisible">
+    </com.jjoe64.graphview.GraphView>
+
+    <com.jjoe64.graphview.GraphView
+        android:id="@+id/GEM"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/lineSeparator"
+        android:layout_marginHorizontal="15dp"
+        android:visibility="invisible">
+    </com.jjoe64.graphview.GraphView>
+
+    <com.jjoe64.graphview.GraphView
+        android:id="@+id/GEY"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/lineSeparator"
+        android:layout_marginHorizontal="15dp"
+        android:visibility="invisible">
+    </com.jjoe64.graphview.GraphView>
+
+    <com.jjoe64.graphview.GraphView
+        android:id="@+id/GEA"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/lineSeparator"
+        android:layout_marginHorizontal="15dp"
+        android:visibility="invisible">
+    </com.jjoe64.graphview.GraphView>
 
 </RelativeLayout>

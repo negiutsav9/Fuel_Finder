@@ -61,10 +61,10 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/Name"
                 android:layout_marginTop="5dp"
+
                 android:stretchColumns="0,1">
 
                 <TableRow>
-
                     <TextView
                         android:id="@+id/address"
                         android:layout_width="0dp"
@@ -95,6 +95,7 @@
                         android:layout_width="0dp"
                         android:layout_weight="1"
                         android:text="Price Level By Google" />
+
 
                     <TextView
                         android:id="@+id/price_lvl"

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="logDropdownOptions">
+        <item>Cost</item>
+        <item>Gallons Purchased</item>
+        <item>Odometer</item>
+        <item>Fuel Economy</item>
+    </string-array>
+</resources>
