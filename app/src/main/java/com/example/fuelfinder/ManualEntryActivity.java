@@ -157,14 +157,16 @@ public class ManualEntryActivity extends AppCompatActivity {
             cost_edit.setText(total_cost+"");
         } else if (manualEntryFetch.getDoubleExtra("CostScan", -10) != -10){
             total_cost = manualEntryFetch.getDoubleExtra("CostScan", 0);
-            cost_edit.setText(total_cost+"");
+            if(total_cost > 0)
+                cost_edit.setText(total_cost+"");
         }
         if (manualEntryFetch.getDoubleExtra("CapacityEdit", -10) != -10) {
             fuel_refill = manualEntryFetch.getDoubleExtra("CapacityEdit", 0);
             fuel_refill_edit.setText(fuel_refill+"");
         } else if (manualEntryFetch.getDoubleExtra("CapacityScan", -10) != -10){
             fuel_refill = manualEntryFetch.getDoubleExtra("CapacityScan",0);
-            fuel_refill_edit.setText(fuel_refill+"");
+            if(fuel_refill > 0)
+                fuel_refill_edit.setText(fuel_refill+"");
         }
         if (manualEntryFetch.getStringExtra("TypeEdit") != null) {
             fuel_type = manualEntryFetch.getStringExtra("TypeEdit");
@@ -175,14 +177,16 @@ public class ManualEntryActivity extends AppCompatActivity {
             odometer_edit.setText(odometer+"");
         } else if (manualEntryFetch.getDoubleExtra("OdometerScan",-10) != -10){
             odometer = manualEntryFetch.getDoubleExtra("OdometerScan",0);
-            odometer_edit.setText(odometer+"");
+            if(odometer > 0)
+                odometer_edit.setText(odometer+"");
         }
         if (manualEntryFetch.getDoubleExtra("EconomyEdit",-10) != -10) {
             fuel_eco = manualEntryFetch.getDoubleExtra("EconomyEdit", 0);
             fuel_eco_edit.setText(fuel_eco+"");
         } else if (manualEntryFetch.getDoubleExtra("EconomyScan",-10) != -10){
             fuel_eco = manualEntryFetch.getDoubleExtra("EconomyScan", 0);
-            fuel_eco_edit.setText(fuel_eco+"");
+            if(fuel_eco > 0)
+                fuel_eco_edit.setText(fuel_eco+"");
         }
 
         //On Clicking Review
