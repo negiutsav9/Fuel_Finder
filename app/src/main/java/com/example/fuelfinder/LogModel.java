@@ -2,10 +2,13 @@ package com.example.fuelfinder;
 
 import com.google.firebase.firestore.GeoPoint;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.HashMap;
 
 //define model class for each log entry in the app
-public class LogModel {
+public class LogModel implements Comparable<LogModel> {
     private String id;                  // unique id for log entry
     private String date;                // date of the log entry
     private String time;                // time of log entry
@@ -140,5 +143,17 @@ public class LogModel {
         map.put("fuel_type",getFuel_type());
         map.put("placeID",getPlaceID());
         return map;
+    }
+
+    public Date stringToDate() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM d, yyyy");
+        LocalDate localDate = LocalDate.parse(date, formatter);
+        return Date.from(localDate.atStartOfDay().atZone(java.time.ZoneId.systemDefault()).toInstant());
+    }
+
+    @Override
+    public int compareTo(LogModel other) {
+        Date curDate = stringToDate();
+        return curDate.compareTo(other.stringToDate());
     }
 }

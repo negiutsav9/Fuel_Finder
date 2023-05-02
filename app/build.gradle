@@ -51,4 +51,5 @@ dependencies {
     implementation('com.google.firebase:firebase-ml-vision:24.0.1') {
         exclude group: 'com.android.support', module: 'support-v4'
     }
+    implementation 'com.jjoe64:graphview:4.2.2'
 }
