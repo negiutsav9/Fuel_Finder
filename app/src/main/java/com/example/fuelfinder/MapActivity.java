@@ -346,6 +346,17 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
                             //getting price from the FireStore result
                             selectedPrices = fuelPrices.get(marker.getSnippet());
+                            price_85.setText(String.format("N/A"));
+                            price_86.setText(String.format("N/A"));
+                            price_87.setText(String.format("N/A"));
+                            price_88.setText(String.format("N/A"));
+                            price_89.setText(String.format("N/A"));
+                            price_90.setText(String.format("N/A"));
+                            price_91.setText(String.format("N/A"));
+                            price_92.setText(String.format("N/A"));
+                            price_93.setText(String.format("N/A"));
+                            price_diesel.setText(String.format("N/A"));
+                            price_flexFuel.setText(String.format("N/A"));
 
                             //pop up the marker detail
                             markerDetail.setVisibility(View.VISIBLE);
@@ -369,8 +380,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                                     Log.d("Available Prices", selectedPrices.keySet().toString());
                                     Log.d("85 Prices", String.format("%.2f", average(selectedPrices.get("85"))));
                                     if(average(selectedPrices.get("85")) >= 0){
-                                    } else {
-                                        price_85.setText(String.format("N/A"));
+                                        price_85.setText(String.format("%.2f", average(selectedPrices.get("85"))));
                                     }
                                 }
                                 if(selectedPrices.get("86") != null){

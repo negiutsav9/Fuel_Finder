@@ -399,6 +399,7 @@ public class LogFragment extends Fragment{
                                                 notifyItemRemoved(position);
                                             }
                                         });
+
                             }
                         });
                         // If "Cancel" button in dialog is clicked, simply dismiss the dialog
