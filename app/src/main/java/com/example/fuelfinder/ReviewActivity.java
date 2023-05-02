@@ -33,9 +33,11 @@ import com.google.android.libraries.places.api.net.FetchPlaceRequest;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.Arrays;
 import java.util.List;
@@ -109,7 +111,7 @@ public class ReviewActivity extends AppCompatActivity implements OnMapReadyCallb
             text_time.setText(time);
         });
         ReviewActivity.this.findViewById(R.id.cost).post(()->{
-           text_cost.setText("$" + total_cost);
+            text_cost.setText("$" + total_cost);
         });
         ReviewActivity.this.findViewById(R.id.fuel).post(()->{
             text_capacity.setText(fuel_refill + " gallons");
@@ -151,29 +153,50 @@ public class ReviewActivity extends AppCompatActivity implements OnMapReadyCallb
                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void unused) {
-
+                                DocumentReference price_ref = firebaseFirestore.collection("Prices").document();
+                                price_ref.set(new PriceDataModel(price_ref.getId(), date, time, (total_cost / fuel_refill), placeID, fuel_type));
+                                ref.update("timestamp", FieldValue.serverTimestamp());
                                 Toast.makeText(ReviewActivity.this,"Log Added", Toast.LENGTH_LONG).show();
                                 startActivity(new Intent(getApplicationContext(), Dashboard.class));
                             }
                         });
-
             } else {
                 DocumentReference ref = firebaseFirestore.collection("User").document(firebaseAuth.getUid())
                         .collection("Logs").document(fetch.getStringExtra("DocID"));
                 LogModel updatedLog = new LogModel(ref.getId(), date, time, total_cost,fuel_refill,(total_cost / fuel_refill),
                         placeID, fuel_eco,(int)odometer, fuel_type, false);
                 ref.update(updatedLog.convertToHashMap());
-                ref.update("timestamp", FieldValue.serverTimestamp())
-                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                ref.update("timestamp", FieldValue.serverTimestamp()).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void unused) {
+                        //Getting document from price data collection
+                        firebaseFirestore.collection("Prices").whereEqualTo("placeID",placeID).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                             @Override
-                            public void onSuccess(Void unused) {
-
-                                Toast.makeText(ReviewActivity.this,"Log Updated", Toast.LENGTH_LONG).show();
-                                startActivity(new Intent(getApplicationContext(), Dashboard.class));
+                            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                                String docID = "";
+                                for(DocumentSnapshot document : queryDocumentSnapshots.getDocuments()){
+                                    docID = (String) document.get("id");
+                                    break;
+                                }
+                                DocumentReference price_ref = firebaseFirestore.collection("Prices").document(docID);
+                                PriceDataModel updatedPrice = new PriceDataModel(price_ref.getId(), date, time, (total_cost / fuel_refill), placeID, fuel_type);
+                                price_ref.update(updatedPrice.convertToHashMap()).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void unused) {
+                                        ref.update("timestamp", FieldValue.serverTimestamp()).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void unused) {
+                                                Toast.makeText(ReviewActivity.this,"Log Updated", Toast.LENGTH_LONG).show();
+                                                startActivity(new Intent(getApplicationContext(), Dashboard.class));
+                                            }
+                                        });
+                                    }
+                                });
                             }
                         });
+                    }
+                });
             }
-
         });
 
         //Edit button onClick listener

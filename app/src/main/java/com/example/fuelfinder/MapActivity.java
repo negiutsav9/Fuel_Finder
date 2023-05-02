@@ -72,6 +72,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private final HashMap<String, HashMap<String, Object>> nearbyPlaces = new HashMap<>();
     private ArrayList<Marker> nearby_markers = new ArrayList<>();
     private HashMap<String, HashMap<String, ArrayList<Double>>> fuelPrices = new HashMap<>();
+    private HashMap<String, ArrayList<Double>> selectedPrices;
     private CardView markerDetail;
     private TextView markerName;
     private TextView markerAddress;
@@ -344,7 +345,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                             map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 
                             //getting price from the FireStore result
-                            HashMap<String, ArrayList<Double>> selectedPrices = fuelPrices.get(marker.getSnippet());
+                            selectedPrices = fuelPrices.get(marker.getSnippet());
 
                             //pop up the marker detail
                             markerDetail.setVisibility(View.VISIBLE);
@@ -365,9 +366,11 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                             }
                             if(selectedPrices != null){
                                 if(selectedPrices.get("85") != null){
+                                    Log.d("Available Prices", selectedPrices.keySet().toString());
                                     Log.d("85 Prices", String.format("%.2f", average(selectedPrices.get("85"))));
                                     if(average(selectedPrices.get("85")) >= 0){
-                                        price_85.setText(String.format("%.2f", average(selectedPrices.get("85"))));
+                                    } else {
+                                        price_85.setText(String.format("N/A"));
                                     }
                                 }
                                 if(selectedPrices.get("86") != null){
@@ -432,6 +435,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     @Override
     public void onMapClick(LatLng latLng) {
         markerDetail.setVisibility(View.GONE);
+        selectedPrices = null;
     }
 
     public double average(ArrayList<Double> alist){
