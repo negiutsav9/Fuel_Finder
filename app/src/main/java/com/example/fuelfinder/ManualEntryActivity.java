@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.DialogInterface;
@@ -13,17 +14,24 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
 import com.google.android.gms.common.api.Status;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.api.net.FetchPlaceRequest;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
@@ -31,6 +39,7 @@ import com.google.android.libraries.places.widget.listener.PlaceSelectionListene
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Formatter;
+import java.util.List;
 import java.util.Locale;
 
 public class ManualEntryActivity extends AppCompatActivity {
@@ -42,11 +51,13 @@ public class ManualEntryActivity extends AppCompatActivity {
     String date;
     int hours, minutes;
     String time;
-    String placeID;
+    String placeID = null;
     double total_cost, fuel_refill, odometer, fuel_eco;
     String fuel_type;
+    Spinner fuelType_spinner;
 
 
+    @SuppressLint("ResourceType")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,7 +78,6 @@ public class ManualEntryActivity extends AppCompatActivity {
         // Create a new PlacesClient instance
         PlacesClient placesClient = Places.createClient(this);
 
-        // Back button to return to previous activity
         ImageView backButton = getSupportActionBar().getCustomView().findViewById(R.id.BackButton);
         backButton.setOnClickListener((View v) -> {
             finish();
@@ -79,7 +89,6 @@ public class ManualEntryActivity extends AppCompatActivity {
         Button review = findViewById(R.id.review_button);
         EditText cost_edit = findViewById(R.id.cost);
         EditText fuel_refill_edit = findViewById(R.id.refill);
-        EditText fuel_type_edit = findViewById(R.id.type);
         EditText odometer_edit = findViewById(R.id.odometer);
         EditText fuel_eco_edit = findViewById(R.id.fuel_eco);
 
@@ -106,13 +115,30 @@ public class ManualEntryActivity extends AppCompatActivity {
                     timeButton.setText(String.format(Locale.getDefault(), "%02d:%02d", hours, minutes));
                 }
             };
-            //Create and show a TimePickerDialog
+
             TimePickerDialog timePickerDialog = new TimePickerDialog(this, onTimeSetListener, hours, minutes, true);
             timePickerDialog.setTitle("Select Time");
             timePickerDialog.show();
-            //Change the text color of the positive and negative buttons in the dialog
             timePickerDialog.getButton(DialogInterface.BUTTON_NEGATIVE).setTextColor(getColor(R.color.teal_200));
             timePickerDialog.getButton(DialogInterface.BUTTON_POSITIVE).setTextColor(getColor(R.color.orange_red));
+        });
+
+        //Fuel Type Code
+        fuelType_spinner = (Spinner) findViewById(R.id.type);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.fuelType_array, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        fuelType_spinner.setAdapter(adapter);
+        fuelType_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                fuel_type = (String) adapterView.getItemAtPosition(i);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+                //Select nothing
+                fuel_type = "";
+            }
         });
 
 
@@ -127,8 +153,10 @@ public class ManualEntryActivity extends AppCompatActivity {
         // Set up a PlaceSelectionListener to handle the response.
         autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
-            public void onPlaceSelected(@NonNull Place place) {
-                // TODO: Get info about the selected place.
+            public void onPlaceSelected(Place place) {
+                if(place == null){
+                    placeID = null;
+                }
                 Log.i(TAG, "Place: " + place.getName() + ", " + place.getLatLng());
                 placeID = place.getId();
             }
@@ -151,42 +179,45 @@ public class ManualEntryActivity extends AppCompatActivity {
         }
         if (manualEntryFetch.getStringExtra("PlaceIDEdit") != null) {
             placeID = manualEntryFetch.getStringExtra("PlaceIDEdit");
+            final List<Place.Field> placeFields = Arrays.asList(Place.Field.NAME);
+            final FetchPlaceRequest request = FetchPlaceRequest.newInstance(placeID, placeFields);
+            placesClient.fetchPlace(request).addOnSuccessListener((response) -> {
+                Place place = response.getPlace();
+                autocompleteFragment.setText(place.getName());
+            });
         }
         if (manualEntryFetch.getDoubleExtra("CostEdit", -10) != -10) {
             total_cost = manualEntryFetch.getDoubleExtra("CostEdit", 0);
             cost_edit.setText(total_cost+"");
         } else if (manualEntryFetch.getDoubleExtra("CostScan", -10) != -10){
             total_cost = manualEntryFetch.getDoubleExtra("CostScan", 0);
-            if(total_cost > 0)
-                cost_edit.setText(total_cost+"");
+            cost_edit.setText(total_cost+"");
         }
         if (manualEntryFetch.getDoubleExtra("CapacityEdit", -10) != -10) {
             fuel_refill = manualEntryFetch.getDoubleExtra("CapacityEdit", 0);
             fuel_refill_edit.setText(fuel_refill+"");
         } else if (manualEntryFetch.getDoubleExtra("CapacityScan", -10) != -10){
             fuel_refill = manualEntryFetch.getDoubleExtra("CapacityScan",0);
-            if(fuel_refill > 0)
-                fuel_refill_edit.setText(fuel_refill+"");
+            fuel_refill_edit.setText(fuel_refill+"");
         }
         if (manualEntryFetch.getStringExtra("TypeEdit") != null) {
             fuel_type = manualEntryFetch.getStringExtra("TypeEdit");
-            fuel_type_edit.setText(fuel_type);
+            int spinner_pos = adapter.getPosition(fuel_type);
+            fuelType_spinner.setSelection(spinner_pos);
         }
         if (manualEntryFetch.getDoubleExtra("OdometerEdit", -10) != -10) {
             odometer = manualEntryFetch.getDoubleExtra("OdometerEdit", 0);
             odometer_edit.setText(odometer+"");
         } else if (manualEntryFetch.getDoubleExtra("OdometerScan",-10) != -10){
             odometer = manualEntryFetch.getDoubleExtra("OdometerScan",0);
-            if(odometer > 0)
-                odometer_edit.setText(odometer+"");
+            odometer_edit.setText(odometer+"");
         }
         if (manualEntryFetch.getDoubleExtra("EconomyEdit",-10) != -10) {
             fuel_eco = manualEntryFetch.getDoubleExtra("EconomyEdit", 0);
             fuel_eco_edit.setText(fuel_eco+"");
         } else if (manualEntryFetch.getDoubleExtra("EconomyScan",-10) != -10){
             fuel_eco = manualEntryFetch.getDoubleExtra("EconomyScan", 0);
-            if(fuel_eco > 0)
-                fuel_eco_edit.setText(fuel_eco+"");
+            fuel_eco_edit.setText(fuel_eco+"");
         }
 
         //On Clicking Review
@@ -204,7 +235,7 @@ public class ManualEntryActivity extends AppCompatActivity {
             }else{
                 fuel_refill = 0;
             }
-            fuel_type = fuel_type_edit.getText().toString().trim();
+            fuel_type = fuelType_spinner.getSelectedItem().toString().trim();
             if(!odometer_edit.getText().toString().trim().equals("")){
                 odometer = Double.parseDouble(odometer_edit.getText().toString().trim());
             }else{
@@ -232,7 +263,6 @@ public class ManualEntryActivity extends AppCompatActivity {
         });
     }
 
-    // Get current date
     private String getTodayDate() {
         Calendar cal = Calendar.getInstance();
         int year = cal.get(Calendar.YEAR);
@@ -242,7 +272,6 @@ public class ManualEntryActivity extends AppCompatActivity {
         return makeDateString(day, month, year);
     }
 
-    // Initializes a DatePickerDialog to allow user to select a date
     private void initDatePicker() {
         DatePickerDialog.OnDateSetListener dateSetListener = new DatePickerDialog.OnDateSetListener() {
             @Override
@@ -252,7 +281,6 @@ public class ManualEntryActivity extends AppCompatActivity {
                 dateButton.setText(date);
             }
         };
-        // Get current date to use as initial date for the DatePickerDialog
         Calendar cal = Calendar.getInstance();
         int year = cal.get(Calendar.YEAR);
         int month = cal.get(Calendar.MONTH);
@@ -261,12 +289,10 @@ public class ManualEntryActivity extends AppCompatActivity {
         datePickerDialog = new DatePickerDialog(this, dateSetListener, year, month, day);
     }
 
-    // Formats a day, month, year as a string
     private String makeDateString(int day, int month, int year) {
         return getMonthFormat(month) + " " + day + ", " + year;
     }
 
-    // This method returns the name of the month given its number
     private String getMonthFormat(int month) {
         if(month == 1){
             return "January";
