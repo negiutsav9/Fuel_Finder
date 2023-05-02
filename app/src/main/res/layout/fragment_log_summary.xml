@@ -12,6 +12,7 @@
         android:layout_marginHorizontal="10dp"
         android:layout_marginVertical="10dp" />
 
+
     <Spinner
         android:id="@+id/logDropdownTime"
         android:layout_width="match_parent"

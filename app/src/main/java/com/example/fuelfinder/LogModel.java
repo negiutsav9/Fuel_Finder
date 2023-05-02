@@ -7,6 +7,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.HashMap;
 
+
 //define model class for each log entry in the app
 public class LogModel implements Comparable<LogModel> {
     private String id;                  // unique id for log entry
@@ -28,7 +29,7 @@ public class LogModel implements Comparable<LogModel> {
     // constructor to create a new og entry object
     public LogModel(String id, String date, String time, double total_cost, double gallons_of_fuel,
                     double estimated_rate, String placeID, double miles_per_gallon,
-                     double odometer_reading, String fuel_type, boolean showMenu) {
+                    double odometer_reading, String fuel_type, boolean showMenu) {
         this.id = id;
         this.date = date;
         this.time = time;

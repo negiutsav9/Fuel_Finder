@@ -1,14 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    >
-
-
+    <RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        >
 
         <TableLayout
             android:id="@+id/dateTimeForm"
@@ -147,17 +144,14 @@
                     android:textSize="25sp"
                     android:textStyle="bold"
                     />
-                <EditText
+
+                <Spinner
+                    android:id="@+id/type"
                     android:layout_width="0dp"
                     android:layout_weight="1"
-                    android:id="@+id/type"
-                    android:textSize="25sp"
-                    android:backgroundTint="@color/orange_red"
-                    android:textAlignment="center"
-                    android:textColor="@color/orange_red"
-                    android:importantForAutofill="no"
-                    tools:ignore="LabelFor"
-                    android:inputType="text" />
+                    android:layout_height="40dp"
+                    android:textSize="25sp"/>
+
             </TableRow>
 
             <TableRow

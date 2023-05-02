@@ -234,7 +234,7 @@ public class LogFragment extends Fragment{
                             imageUrl = "https://maps.googleapis.com/maps/api/staticmap?center="+
                                     latitude+","+longitude+"&zoom=14&scale3&size=170x180&markers=color:red%7Csize:mid%7Clabel:S%7C" +
                                     + latitude+","+longitude+"&maptype=roadmap&key=" + BuildConfig.apiKey +
-                            "&style=element%3Ageometry%7Ccolor%3A0x242f3e&style=element%3Alabels.text.stroke%7Ccolor%3A0x242f3e&" +
+                                    "&style=element%3Ageometry%7Ccolor%3A0x242f3e&style=element%3Alabels.text.stroke%7Ccolor%3A0x242f3e&" +
                                     "style=element%3Alabels.text.fill%7Ccolor%3A0x746855&style=feature%3Aadministrative.locality" +
                                     "%7Celement%3Alabels.text.fill%7Ccolor%3A0xd59563&style=feature%3Apoi%7Celement%3Alabels.text" +
                                     ".fill%7Ccolor%3A0xd59563&style=feature%3Apoi.park%7Celement%3Ageometry%7Ccolor%3A0x263c3f&" +
